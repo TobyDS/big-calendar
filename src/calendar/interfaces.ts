@@ -6,15 +6,20 @@ export interface IUser {
   picturePath: string | null;
 }
 
-export interface IEvent {
-  id: number;
+export interface IBaseEvent {
+  id: string | number;
   startDate: string;
   endDate: string;
   title: string;
+}
+
+export interface IDefaultEvent extends IBaseEvent {
   color: TEventColor;
   description: string;
   user: IUser;
 }
+
+export type IEvent<T extends IBaseEvent = IDefaultEvent> = T;
 
 export interface ICalendarCell {
   day: number;

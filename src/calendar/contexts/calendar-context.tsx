@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useState } from "react";
 
-import type { IEvent, IUser } from "@/calendar/interfaces";
+import type { IBaseEvent, IDefaultEvent, IUser } from "@/calendar/interfaces";
 import { WeekStartDay, type WeekStartNumber } from "@/calendar/types";
 
-interface ICalendarContext {
+interface ICalendarContext<T extends IBaseEvent = IDefaultEvent> {
   selectedDate: Date;
   setSelectedDate: (date: Date | undefined) => void;
   selectedUserId: IUser["id"] | "all";
@@ -14,19 +14,24 @@ interface ICalendarContext {
   setBadgeVariant: (variant: "dot" | "colored") => void;
   weekStartsOn: WeekStartNumber;
   users: IUser[];
-  events: IEvent[];
+  events: T[];
 }
 
-const CalendarContext = createContext({} as ICalendarContext);
+const CalendarContext = createContext<ICalendarContext<any>>({} as ICalendarContext<any>);
 
-interface CalendarProviderProps {
+interface CalendarProviderProps<T extends IBaseEvent = IDefaultEvent> {
   children: React.ReactNode;
   users: IUser[];
-  events: IEvent[];
+  events: T[];
   weekStartsOn?: WeekStartDay;
 }
 
-export function CalendarProvider({ children, users, events, weekStartsOn = "Sunday" }: CalendarProviderProps) {
+export function CalendarProvider<T extends IBaseEvent = IDefaultEvent>({ 
+  children, 
+  users, 
+  events, 
+  weekStartsOn = "Sunday" 
+}: CalendarProviderProps<T>) {
   const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<IUser["id"] | "all">("all");
@@ -55,7 +60,7 @@ export function CalendarProvider({ children, users, events, weekStartsOn = "Sund
   );
 }
 
-export function useCalendar(): ICalendarContext {
+export function useCalendar<T extends IBaseEvent = IDefaultEvent>(): ICalendarContext<T> {
   const context = useContext(CalendarContext);
   if (!context) throw new Error("useCalendar must be used within a CalendarProvider.");
   return context;
