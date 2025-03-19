@@ -1,12 +1,10 @@
 import { useMemo } from "react";
 import { isToday, startOfDay } from "date-fns";
 
+import { cn } from "@/utils/helpers/cn.helper";
 import { EventBullet } from "@/calendar/components/month-view/event-bullet";
 import { MonthEventBadge } from "@/calendar/components/month-view/month-event-badge";
-
-import { cn } from "@/utils/helpers/cn.helper";
 import { getMonthCellEvents } from "@/calendar/helpers";
-
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
 
 interface IProps {

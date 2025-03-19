@@ -1,14 +1,10 @@
-import { cva } from "class-variance-authority";
+import { cva , type VariantProps} from "class-variance-authority";
 import { endOfDay, format, isSameDay, parseISO, startOfDay } from "date-fns";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-
 import { EventDetailsDialog } from "@/calendar/components/dialogs/event-details-dialog";
-
 import { cn } from "@/utils/helpers/cn.helper";
-
 import type { IEvent } from "@/calendar/interfaces";
-import type { VariantProps } from "class-variance-authority";
 
 const eventBadgeVariants = cva(
   "mx-1 flex size-auto h-6.5 select-none items-center justify-between gap-1.5 truncate whitespace-nowrap rounded-md border px-2 text-xs",
@@ -44,7 +40,7 @@ const eventBadgeVariants = cva(
   }
 );
 
-interface IProps extends Omit<VariantProps<typeof eventBadgeVariants>, "color" | "multiDayPosition"> {
+interface IProps extends Omit<VariantProps<typeof eventBadgeVariants>, "color"> {
   event: IEvent;
   cellDate: Date;
   eventCurrentDay?: number;

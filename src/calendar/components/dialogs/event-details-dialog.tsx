@@ -4,7 +4,6 @@ import { format, parseISO } from "date-fns";
 import { Calendar, Clock, Text, User } from "lucide-react";
 
 import { Dialog } from "@/components/ui/dialog";
-
 import type { IEvent } from "@/calendar/interfaces";
 
 interface IProps {

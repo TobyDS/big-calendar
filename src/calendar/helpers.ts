@@ -114,41 +114,81 @@ export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView
 // ================ Week and day view helper functions ================ //
 
 export function groupEvents(dayEvents: IEvent[]) {
-  const sortedEvents = dayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime());
-  const groups: IEvent[][] = [];
+  const sortedEvents = dayEvents.sort((a, b) => {
+    // First sort by start time
+    const timeCompare = parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime();
+    if (timeCompare !== 0) return timeCompare;
+    // If start times are equal, sort by duration (longer events first)
+    const aDuration = differenceInMinutes(parseISO(a.endDate), parseISO(a.startDate));
+    const bDuration = differenceInMinutes(parseISO(b.endDate), parseISO(b.startDate));
+    return bDuration - aDuration;
+  });
+
+  // Create columns that can contain multiple non-overlapping events
+  const columns: Array<Array<{ event: IEvent; start: Date; end: Date }>> = [];
 
   for (const event of sortedEvents) {
     const eventStart = parseISO(event.startDate);
-
+    const eventEnd = parseISO(event.endDate);
     let placed = false;
-    for (const group of groups) {
-      const lastEventInGroup = group[group.length - 1];
-      const lastEventEnd = parseISO(lastEventInGroup.endDate);
 
-      if (eventStart >= lastEventEnd) {
-        group.push(event);
+    // Try to find a column where this event can fit without overlapping
+    for (const column of columns) {
+      // Check if event can be placed in this column
+      const canFitInColumn = column.every(slot => {
+        // No overlap if current event ends before slot starts or starts after slot ends
+        return eventEnd <= slot.start || eventStart >= slot.end;
+      });
+
+      if (canFitInColumn) {
+        column.push({ event, start: eventStart, end: eventEnd });
         placed = true;
         break;
       }
     }
 
-    if (!placed) groups.push([event]);
+    // If event couldn't fit in any existing column, create a new one
+    if (!placed) {
+      columns.push([{ event, start: eventStart, end: eventEnd }]);
+    }
   }
 
-  return groups;
+  // Convert columns back to groups format
+  return columns.map(column => column.map(slot => slot.event));
 }
 
-export function getEventBlockStyle(event: IEvent, day: Date, groupIndex: number, groupSize: number) {
+export function getEventBlockStyle(
+  event: IEvent,
+  date: Date,
+  groupIndex: number,
+  totalGroups: number,
+  timeBoundaries: { startHour: number; endHour: number; } | null = null
+) {
   const startDate = parseISO(event.startDate);
-  const dayStart = new Date(day.setHours(0, 0, 0, 0));
-  const eventStart = startDate < dayStart ? dayStart : startDate;
-  const startMinutes = differenceInMinutes(eventStart, dayStart);
+  const endDate = parseISO(event.endDate);
+  const startHour = timeBoundaries?.startHour ?? 0;
+  const endHour = timeBoundaries?.endHour ?? 23;
 
-  const top = (startMinutes / MINUTES_IN_DAY) * 100;
-  const width = 100 / groupSize;
-  const left = groupIndex * width;
+  // Clamp event times to boundaries
+  const eventStartHour = Math.max(startDate.getHours(), startHour);
+  const eventEndHour = Math.min(endDate.getHours(), endHour);
+  const eventStartMinutes = eventStartHour * MINUTES_IN_HOUR + startDate.getMinutes();
+  const eventEndMinutes = eventEndHour * MINUTES_IN_HOUR + endDate.getMinutes();
+  const dayStartMinutes = startHour * MINUTES_IN_HOUR;
 
-  return { top: `${top}%`, width: `${width}%`, left: `${left}%` };
+  const top = ((eventStartMinutes - dayStartMinutes) / MINUTES_IN_HOUR) * CELL_HEIGHT_PX + EVENT_VERTICAL_PADDING;
+  const height = ((eventEndMinutes - eventStartMinutes) / MINUTES_IN_HOUR) * CELL_HEIGHT_PX - EVENT_VERTICAL_PADDING * 2;
+
+  // Calculate width and left position based on group
+  const baseWidth = totalGroups > 0 ? 95 / totalGroups : 95; // Leave small gap between events
+  const baseLeft = totalGroups > 0 ? (groupIndex * 95) / totalGroups : 0;
+
+  return {
+    top: Math.round(top) + "px",
+    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px", // Ensure minimum height
+    width: Math.round(baseWidth) + "%",
+    left: Math.round(baseLeft) + "%",
+  };
 }
 
 // ================ Month view helper functions ================ //
@@ -186,7 +226,7 @@ export function getCalendarCells(selectedDate: Date): ICalendarCell[] {
   return [...prevMonthCells, ...currentMonthCells, ...nextMonthCells];
 }
 
-export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDayEvents: IEvent[], selectedDate: Date) {
+export function calculateMonthEventPositions(singleDayEvents: IEvent[], selectedDate: Date) {
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
 
@@ -198,11 +238,6 @@ export function calculateMonthEventPositions(multiDayEvents: IEvent[], singleDay
   });
 
   const sortedEvents = [
-    ...multiDayEvents.sort((a, b) => {
-      const aDuration = differenceInDays(parseISO(a.endDate), parseISO(a.startDate));
-      const bDuration = differenceInDays(parseISO(b.endDate), parseISO(b.startDate));
-      return bDuration - aDuration || parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime();
-    }),
     ...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()),
   ];
 

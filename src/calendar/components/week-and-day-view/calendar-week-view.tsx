@@ -1,14 +1,10 @@
 import { startOfWeek, addDays, format, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
 import { HOURS_IN_DAY, DAYS_IN_WEEK, CELL_HEIGHT_PX } from "@/calendar/helpers";
-
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
-import { WeekViewMultiDayEventsRow } from "@/calendar/components/week-and-day-view/week-view-multi-day-events-row";
 
 import { groupEvents, getEventBlockStyle } from "@/calendar/helpers";
 
@@ -16,10 +12,9 @@ import type { IEvent } from "@/calendar/interfaces";
 
 interface IProps {
   singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
 }
 
-export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
+export function CalendarWeekView({ singleDayEvents }: IProps) {
   const { selectedDate } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate);
@@ -35,7 +30,6 @@ export function CalendarWeekView({ singleDayEvents, multiDayEvents }: IProps) {
 
       <div className="hidden flex-col sm:flex">
         <div>
-          <WeekViewMultiDayEventsRow selectedDate={selectedDate} multiDayEvents={multiDayEvents} />
 
           {/* Week header */}
           <div className="relative z-20 flex border-b">

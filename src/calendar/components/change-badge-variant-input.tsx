@@ -1,8 +1,7 @@
 "use client";
 
-import { useCalendar } from "@/calendar/contexts/calendar-context";
-
 import { Select } from "@/components/ui/select";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 export function ChangeBadgeVariantInput() {
   const { badgeVariant, setBadgeVariant } = useCalendar();

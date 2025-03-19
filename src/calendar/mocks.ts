@@ -122,8 +122,6 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
   const result: IEvent[] = [];
   let currentId = 1;
 
-  const randomUser = USERS_MOCK[Math.floor(Math.random() * USERS_MOCK.length)];
-
   // Date range: 30 days before and after now
   const now = new Date();
   const startRange = new Date(now);
@@ -131,24 +129,7 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
   const endRange = new Date(now);
   endRange.setDate(now.getDate() + 30);
 
-  // Create an event happening now
-  const currentEvent = {
-    id: currentId++,
-    startDate: new Date(now.getTime() - 30 * 60000).toISOString(),
-    endDate: new Date(now.getTime() + 30 * 60000).toISOString(),
-    title: events[Math.floor(Math.random() * events.length)],
-    color: colors[Math.floor(Math.random() * colors.length)],
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    user: randomUser,
-  };
-
-  result.push(currentEvent);
-
-  // Generate the remaining events
-  for (let i = 0; i < numberOfEvents - 1; i++) {
-    // Determine if this is a multi-day event (10% chance)
-    const isMultiDay = Math.random() < 0.1;
-
+  for (let i = 0; i < numberOfEvents; i++) {
     const startDate = new Date(startRange.getTime() + Math.random() * (endRange.getTime() - startRange.getTime()));
 
     // Set time between 8 AM and 8 PM
@@ -156,15 +137,8 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
 
     const endDate = new Date(startDate);
 
-    if (isMultiDay) {
-      // Multi-day event: Add 1-4 days
-      const additionalDays = Math.floor(Math.random() * 4) + 1;
-      endDate.setDate(startDate.getDate() + additionalDays);
-      endDate.setHours(8 + Math.floor(Math.random() * 12), Math.floor(Math.random() * 60), 0, 0);
-    } else {
-      // Same-day event: Add 1-3 hours
-      endDate.setHours(endDate.getHours() + Math.floor(Math.random() * 3) + 1);
-    }
+    // Same-day event: Add 1-3 hours
+    endDate.setHours(endDate.getHours() + Math.floor(Math.random() * 3) + 1);
 
     result.push({
       id: currentId++,

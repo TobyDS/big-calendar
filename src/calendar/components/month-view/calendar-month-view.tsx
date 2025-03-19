@@ -1,31 +1,23 @@
 import { useMemo } from "react";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-
 import { DayCell } from "@/calendar/components/month-view/day-cell";
-
 import { getCalendarCells, calculateMonthEventPositions } from "@/calendar/helpers";
-
 import type { IEvent } from "@/calendar/interfaces";
-
 interface IProps {
   singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
 }
 
 const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export function CalendarMonthView({ singleDayEvents, multiDayEvents }: IProps) {
+export function CalendarMonthView({ singleDayEvents }: IProps) {
   const { selectedDate } = useCalendar();
 
-  const allEvents = [...multiDayEvents, ...singleDayEvents];
+  const allEvents = [...singleDayEvents];
 
   const cells = useMemo(() => getCalendarCells(selectedDate), [selectedDate]);
 
-  const eventPositions = useMemo(
-    () => calculateMonthEventPositions(multiDayEvents, singleDayEvents, selectedDate),
-    [multiDayEvents, singleDayEvents, selectedDate]
-  );
+  const eventPositions = useMemo(() => calculateMonthEventPositions(singleDayEvents, selectedDate), [singleDayEvents, selectedDate]);
 
   return (
     <div>

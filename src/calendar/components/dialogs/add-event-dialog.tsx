@@ -1,10 +1,10 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import type { TimeValue } from "react-aria-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
-
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -14,10 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TimeInput } from "@/components/ui/time-input";
 import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 
-import { eventSchema } from "@/calendar/schemas";
-
-import type { TimeValue } from "react-aria-components";
-import type { TEventFormData } from "@/calendar/schemas";
+import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 
 interface IProps {
   children: React.ReactNode;

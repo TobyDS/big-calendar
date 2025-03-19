@@ -1,27 +1,19 @@
 import { Calendar, Clock, User } from "lucide-react";
 import { parseISO, areIntervalsOverlapping, format, isWithinInterval } from "date-fns";
-import { HOURS_IN_DAY, CELL_HEIGHT_PX } from "@/calendar/helpers";
-
-import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { HOURS_IN_DAY, CELL_HEIGHT_PX, groupEvents, getEventBlockStyle } from "@/calendar/helpers";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
-import { DayViewMultiDayEventsRow } from "@/calendar/components/week-and-day-view/day-view-multi-day-events-row";
-
-import { groupEvents, getEventBlockStyle } from "@/calendar/helpers";
-
 import type { IEvent } from "@/calendar/interfaces";
-
 interface IProps {
   singleDayEvents: IEvent[];
-  multiDayEvents: IEvent[];
 }
 
-export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
+export function CalendarDayView({ singleDayEvents }: IProps) {
   const { selectedDate, setSelectedDate, users } = useCalendar();
 
   const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
@@ -56,8 +48,6 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
     <div className="flex">
       <div className="flex flex-1 flex-col">
         <div>
-          <DayViewMultiDayEventsRow selectedDate={selectedDate} multiDayEvents={multiDayEvents} />
-
           {/* Day header */}
           <div className="relative z-20 flex border-b">
             <div className="w-18"></div>
