@@ -180,4 +180,4 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
   return result;
 };
 
-export const CALENDAR_ITENS_MOCK: IEvent[] = mockGenerator(80);
+export const CALENDAR_ITEMS_MOCK: IEvent[] = mockGenerator(80);

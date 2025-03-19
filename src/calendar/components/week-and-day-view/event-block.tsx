@@ -1,5 +1,6 @@
 import { cva } from "class-variance-authority";
 import { format, differenceInMinutes, parseISO } from "date-fns";
+import { CELL_HEIGHT_PX, EVENT_VERTICAL_PADDING, COMPACT_EVENT_THRESHOLD_MINUTES, MINUTES_IN_HOUR, MIN_DURATION_FOR_TIME_DISPLAY } from "@/calendar/helpers";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 
@@ -34,7 +35,7 @@ const calendarWeekEventCardVariants = cva(
       },
     },
     defaultVariants: {
-      color: "blue-dot",
+      color: "blue",
     },
   }
 );
@@ -49,11 +50,11 @@ export function EventBlock({ event, className }: IProps) {
   const start = parseISO(event.startDate);
   const end = parseISO(event.endDate);
   const durationInMinutes = differenceInMinutes(end, start);
-  const heightInPixels = (durationInMinutes / 60) * 96 - 8;
+  const heightInPixels = (durationInMinutes / MINUTES_IN_HOUR) * CELL_HEIGHT_PX - EVENT_VERTICAL_PADDING;
 
   const color = (badgeVariant === "dot" ? `${event.color}-dot` : event.color) as VariantProps<typeof calendarWeekEventCardVariants>["color"];
 
-  const calendarWeekEventCardClasses = cn(calendarWeekEventCardVariants({ color, className }), durationInMinutes < 35 && "py-0 justify-center");
+  const calendarWeekEventCardClasses = cn(calendarWeekEventCardVariants({ color, className }), durationInMinutes < COMPACT_EVENT_THRESHOLD_MINUTES && "py-0 justify-center");
 
   return (
     <EventDetailsDialog event={event}>
@@ -68,7 +69,7 @@ export function EventBlock({ event, className }: IProps) {
           <p className="truncate font-semibold">{event.title}</p>
         </div>
 
-        {durationInMinutes > 25 && (
+        {durationInMinutes > MIN_DURATION_FOR_TIME_DISPLAY && (
           <p>
             {format(start, "HH:mm a")} - {format(end, "HH:mm a")}
           </p>

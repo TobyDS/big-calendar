@@ -1,5 +1,6 @@
 import { Calendar, Clock, User } from "lucide-react";
 import { parseISO, areIntervalsOverlapping, format, isWithinInterval } from "date-fns";
+import { HOURS_IN_DAY, CELL_HEIGHT_PX } from "@/calendar/helpers";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 
@@ -23,7 +24,7 @@ interface IProps {
 export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
   const { selectedDate, setSelectedDate, users } = useCalendar();
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
 
   const getCurrentEvents = (events: IEvent[]) => {
     const now = new Date();
@@ -71,7 +72,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
             {/* Hours column */}
             <div className="relative w-18">
               {hours.map((hour, index) => (
-                <div key={hour} className="relative" style={{ height: "96px" }}>
+                <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
                     {index !== 0 && <span className="text-xs text-t-quaternary">{format(new Date().setHours(hour), "hh a")}</span>}
                   </div>
@@ -83,7 +84,7 @@ export function CalendarDayView({ singleDayEvents, multiDayEvents }: IProps) {
             <div className="relative flex-1 border-l">
               <div className="relative">
                 {hours.map((hour, index) => (
-                  <div key={hour} className="relative" style={{ height: "96px" }}>
+                  <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                     {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
 
                     <AddEventDialog startDate={selectedDate} startTime={{ hour, minute: 0 }}>

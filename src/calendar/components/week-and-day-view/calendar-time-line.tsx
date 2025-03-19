@@ -1,17 +1,18 @@
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { MINUTES_IN_DAY, UPDATE_INTERVAL_MS } from "@/calendar/helpers";
 
 export function CalendarTimeline() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60 * 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), UPDATE_INTERVAL_MS);
     return () => clearInterval(timer);
   }, []);
 
   const getCurrentTimePosition = () => {
     const minutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-    return (minutes / 1440) * 100;
+    return (minutes / MINUTES_IN_DAY) * 100;
   };
 
   const formatCurrentTime = () => {
