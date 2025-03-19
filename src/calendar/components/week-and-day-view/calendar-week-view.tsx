@@ -109,7 +109,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                 })}
               </div>
 
-              <CalendarTimeline />
+              <CalendarTimeline view="week" />
             </div>
           </div>
         </ScrollArea>

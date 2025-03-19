@@ -114,7 +114,7 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
                 )}
               </div>
 
-              <CalendarTimeline />
+              <CalendarTimeline view="day" />
             </div>
           </div>
         </ScrollArea>
