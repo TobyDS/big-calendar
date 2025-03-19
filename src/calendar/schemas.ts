@@ -27,7 +27,7 @@ export const eventSchema = z.object({
       required_error: "End time is required",
     }
   ),
-  variant: z.enum(["blue", "green", "red", "yellow", "purple", "gray"], {
+  variant: z.enum(["blue", "indigo", "pink", "red", "orange", "amber", "emerald"], {
     required_error: "Variant is required",
   }),
 });

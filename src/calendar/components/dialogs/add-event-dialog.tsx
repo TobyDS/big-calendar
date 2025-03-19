@@ -166,43 +166,50 @@ export function AddEventDialog({ children, startDate, startTime }: IProps) {
                         <Select.Content>
                           <Select.Item value="blue">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-blue-600 dark:bg-blue-700" />
+                              <div className="size-3.5 rounded-full bg-blue-500 dark:bg-blue-400" />
                               Blue
                             </div>
                           </Select.Item>
 
-                          <Select.Item value="green">
+                          <Select.Item value="indigo">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-green-600 dark:bg-green-700" />
-                              Green
+                              <div className="size-3.5 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                              Indigo
+                            </div>
+                          </Select.Item>
+
+                          <Select.Item value="pink">
+                            <div className="flex items-center gap-2">
+                              <div className="size-3.5 rounded-full bg-pink-500 dark:bg-pink-400" />
+                              Pink
                             </div>
                           </Select.Item>
 
                           <Select.Item value="red">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-red-600 dark:bg-red-700" />
+                              <div className="size-3.5 rounded-full bg-red-500 dark:bg-red-400" />
                               Red
                             </div>
                           </Select.Item>
 
-                          <Select.Item value="yellow">
+                          <Select.Item value="orange">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-yellow-600 dark:bg-yellow-700" />
-                              Yellow
+                              <div className="size-3.5 rounded-full bg-orange-500 dark:bg-orange-400" />
+                              Orange
                             </div>
                           </Select.Item>
 
-                          <Select.Item value="purple">
+                          <Select.Item value="amber">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-purple-600 dark:bg-purple-700" />
-                              Purple
+                              <div className="size-3.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+                              Amber
                             </div>
                           </Select.Item>
 
-                          <Select.Item value="gray">
+                          <Select.Item value="emerald">
                             <div className="flex items-center gap-2">
-                              <div className="size-3.5 rounded-full bg-gray-600 dark:bg-gray-700" />
-                              Gray
+                              <div className="size-3.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                              Emerald
                             </div>
                           </Select.Item>
                         </Select.Content>
