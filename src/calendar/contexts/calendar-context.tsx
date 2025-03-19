@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from "react";
 
 import type { IEvent, IUser } from "@/calendar/interfaces";
+import { WeekStartDay, type WeekStartNumber } from "@/calendar/types";
 
 interface ICalendarContext {
   selectedDate: Date;
@@ -11,7 +12,7 @@ interface ICalendarContext {
   setSelectedUserId: (userId: IUser["id"] | "all") => void;
   badgeVariant: "dot" | "colored";
   setBadgeVariant: (variant: "dot" | "colored") => void;
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  weekStartsOn: WeekStartNumber;
   users: IUser[];
   events: IEvent[];
 }
@@ -22,10 +23,10 @@ interface CalendarProviderProps {
   children: React.ReactNode;
   users: IUser[];
   events: IEvent[];
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  weekStartsOn?: WeekStartDay;
 }
 
-export function CalendarProvider({ children, users, events, weekStartsOn = 0 }: CalendarProviderProps) {
+export function CalendarProvider({ children, users, events, weekStartsOn = "Sunday" }: CalendarProviderProps) {
   const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<IUser["id"] | "all">("all");
@@ -44,7 +45,7 @@ export function CalendarProvider({ children, users, events, weekStartsOn = 0 }: 
         setSelectedUserId, 
         badgeVariant, 
         setBadgeVariant, 
-        weekStartsOn,
+        weekStartsOn: WeekStartDay[weekStartsOn],
         users, 
         events 
       }}

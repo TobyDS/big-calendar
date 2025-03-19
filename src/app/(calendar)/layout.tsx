@@ -5,7 +5,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const [events, users] = await Promise.all([getEvents(), getUsers()]);
 
   return (
-    <CalendarProvider users={users} events={events} weekStartsOn={1}>
+    <CalendarProvider users={users} events={events} weekStartsOn="Monday">
       <div className="mx-auto flex max-w-screen-2xl flex-col gap-4 px-8 py-4">
         {children}
       </div>
