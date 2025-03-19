@@ -21,6 +21,7 @@ import {
 
 import type { TCalendarView } from "@/calendar/types";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
+import { useCalendar } from "./contexts/calendar-context";
 
 // Calendar Constants
 /** Number of days in a week */
@@ -67,7 +68,7 @@ export const EVENT_VERTICAL_PADDING = 8;
 
 // ================ Header helper functions ================ //
 
-export function rangeText(view: TCalendarView, date: Date) {
+export function rangeText(view: TCalendarView, date: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1) {
   const formatString = "MMM d, yyyy";
   let start: Date;
   let end: Date;
@@ -78,8 +79,8 @@ export function rangeText(view: TCalendarView, date: Date) {
       end = endOfMonth(date);
       break;
     case "week":
-      start = startOfWeek(date);
-      end = endOfWeek(date);
+      start = startOfWeek(date, { weekStartsOn });
+      end = endOfWeek(date, { weekStartsOn });
       break;
     case "day":
       return format(date, formatString);
@@ -100,10 +101,10 @@ export function navigateDate(date: Date, view: TCalendarView, direction: "previo
   return operations[view](date, 1);
 }
 
-export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView): number {
+export function getEventsCount(events: IEvent[], date: Date, view: TCalendarView, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1): number {
   const compareFns = {
     day: isSameDay,
-    week: isSameWeek,
+    week: (d1: Date, d2: Date) => isSameWeek(d1, d2, { weekStartsOn }),
     month: isSameMonth,
   };
 
@@ -191,12 +192,15 @@ export function getEventBlockStyle(
 
 // ================ Month view helper functions ================ //
 
-export function getCalendarCells(selectedDate: Date): ICalendarCell[] {
+export function getCalendarCells(selectedDate: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1): ICalendarCell[] {
   const currentYear = selectedDate.getFullYear();
   const currentMonth = selectedDate.getMonth();
 
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    const firstDay = new Date(year, month, 1).getDay();
+    return (firstDay + DAYS_IN_WEEK - weekStartsOn) % DAYS_IN_WEEK;
+  };
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);

@@ -11,15 +11,22 @@ interface ICalendarContext {
   setSelectedUserId: (userId: IUser["id"] | "all") => void;
   badgeVariant: "dot" | "colored";
   setBadgeVariant: (variant: "dot" | "colored") => void;
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   users: IUser[];
   events: IEvent[];
 }
 
 const CalendarContext = createContext({} as ICalendarContext);
 
-export function CalendarProvider({ children, users, events }: { children: React.ReactNode; users: IUser[]; events: IEvent[] }) {
-  const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
+interface CalendarProviderProps {
+  children: React.ReactNode;
+  users: IUser[];
+  events: IEvent[];
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+}
 
+export function CalendarProvider({ children, users, events, weekStartsOn = 0 }: CalendarProviderProps) {
+  const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<IUser["id"] | "all">("all");
 
@@ -30,7 +37,17 @@ export function CalendarProvider({ children, users, events }: { children: React.
 
   return (
     <CalendarContext.Provider
-      value={{ selectedDate, setSelectedDate: handleSelectDate, selectedUserId, setSelectedUserId, badgeVariant, setBadgeVariant, users, events }}
+      value={{ 
+        selectedDate, 
+        setSelectedDate: handleSelectDate, 
+        selectedUserId, 
+        setSelectedUserId, 
+        badgeVariant, 
+        setBadgeVariant, 
+        weekStartsOn,
+        users, 
+        events 
+      }}
     >
       {children}
     </CalendarContext.Provider>

@@ -22,7 +22,7 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
   const isSunday = date.getDay() === 0;
 
   return (
-    <div className={cn("flex flex-col gap-1 border-l border-t py-1.5 lg:py-2", isSunday && "border-l-0")}>
+    <div className="flex flex-col gap-1 py-1.5 lg:py-2">
       <span
         className={cn(
           "h-6 px-1 text-xs font-semibold lg:px-2",

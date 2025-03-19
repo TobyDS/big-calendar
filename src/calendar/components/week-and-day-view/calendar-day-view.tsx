@@ -14,7 +14,7 @@ interface IProps {
 }
 
 export function CalendarDayView({ singleDayEvents }: IProps) {
-  const { selectedDate, setSelectedDate, users } = useCalendar();
+  const { selectedDate, setSelectedDate, users, weekStartsOn } = useCalendar();
 
   const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
 
@@ -121,7 +121,14 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
       </div>
 
       <div className="hidden w-72 divide-y border-l md:block">
-        <DayPicker className="mx-auto w-fit" mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus />
+        <DayPicker 
+          className="mx-auto w-fit" 
+          mode="single" 
+          selected={selectedDate} 
+          onSelect={setSelectedDate} 
+          initialFocus
+          weekStartsOn={weekStartsOn}
+        />
 
         <div className="flex-1 space-y-3">
           {currentEvents.length > 0 ? (
