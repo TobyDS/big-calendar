@@ -1,6 +1,3 @@
-import Link from "next/link";
-import { ArrowUpRight, Calendar } from "lucide-react";
-
 import { ToggleTheme } from "@/components/layout/change-theme";
 
 export function Header() {

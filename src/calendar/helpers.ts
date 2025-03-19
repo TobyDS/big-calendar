@@ -17,7 +17,6 @@ import {
   differenceInMinutes,
   eachDayOfInterval,
   startOfDay,
-  differenceInDays,
 } from "date-fns";
 
 import type { TCalendarView } from "@/calendar/types";
@@ -159,7 +158,6 @@ export function groupEvents(dayEvents: IEvent[]) {
 
 export function getEventBlockStyle(
   event: IEvent,
-  date: Date,
   groupIndex: number,
   totalGroups: number,
   timeBoundaries: { startHour: number; endHour: number; } | null = null
