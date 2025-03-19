@@ -43,19 +43,37 @@ export function CalendarTimeline({ view }: Props) {
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 z-50 border-t border-primary-600 dark:border-primary-700"
+      className="pointer-events-none absolute inset-x-0 z-50"
       style={{ 
         top: `${getCurrentTimePosition()}%`,
         "--time-line-width": "1px"
       } as React.CSSProperties}
     >
+      {/* Full width line with lower opacity */}
+      <div className="absolute inset-x-0 border-t border-primary-600 opacity-30 dark:border-primary-700" />
+
+      {/* Today's column line with full opacity */}
+      {view === 'week' && (
+        <div 
+          className="absolute border-t border-primary-600 dark:border-primary-700"
+          style={{
+            left: getDotPosition(),
+            width: "calc(100% / 7)",
+            transform: "translateX(-0.5px)" // Adjust for border alignment
+          }}
+        />
+      )}
+
+      {/* Full opacity line for day view */}
+      {view === 'day' && (
+        <div className="absolute inset-x-0 border-t border-primary-600 dark:border-primary-700" />
+      )}
+
       <div 
         className="absolute size-3 rounded-full bg-primary-600 dark:bg-primary-700"
         style={{ 
           left: getDotPosition(), 
-          transform: view === 'day' 
-            ? "translate(-50%, calc(-50% - var(--time-line-width) / 2))"
-            : "translate(-50%, calc(-50% - var(--time-line-width) / 2))"
+          transform: "translate(-50%, calc(-50% - var(--time-line-width) / 2))"
         }}
       />
 
