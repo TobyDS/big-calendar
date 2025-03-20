@@ -15,12 +15,12 @@ interface IProps {
 }
 
 export function DateNavigator({ view, events }: IProps) {
-  const { selectedDate, setSelectedDate, weekStartsOn } = useCalendar();
+  const { selectedDate, setSelectedDate, weekStartsOn, dayBoundaries } = useCalendar();
 
   const month = formatDate(selectedDate, "MMMM");
   const year = selectedDate.getFullYear();
 
-  const eventCount = useMemo(() => getEventsCount(events, selectedDate, view, weekStartsOn), [events, selectedDate, view, weekStartsOn]);
+  const eventCount = useMemo(() => getEventsCount(events, selectedDate, view, weekStartsOn, dayBoundaries), [events, selectedDate, view, weekStartsOn, dayBoundaries]);
 
   const handlePrevious = () => setSelectedDate(navigateDate(selectedDate, view, "previous"));
   const handleNext = () => setSelectedDate(navigateDate(selectedDate, view, "next"));
