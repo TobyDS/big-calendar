@@ -45,7 +45,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
         </div>
 
         <ScrollArea className="relative h-[736px]" type="always" orientation="vertical">
-          <div className="flex h-full overflow-hidden">
+          <div className="flex h-full">
             {/* Hours column */}
             <div className="relative w-18" style={{ height: `${calendarHeight}px` }}>
               {hours.map((hour, index) => (
@@ -58,7 +58,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
             </div>
 
             {/* Week grid */}
-            <div className="relative flex-1 overflow-hidden border-l" style={{ height: `${calendarHeight}px` }}>
+            <div className="relative flex-1 border-l" style={{ height: `${calendarHeight}px` }}>
               <div className="grid h-full grid-cols-7 divide-x">
                 {weekDays.map((day, dayIndex) => {
                   const dayEvents = singleDayEvents.filter(event => isSameDay(parseISO(event.startDate), day) || isSameDay(parseISO(event.endDate), day));
@@ -83,7 +83,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                         </div>
                       ))}
 
-                      <div className="absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
+                      <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
                         {groupedEvents.map(group =>
                           group.events.map(({ event, column }) => {
                             const style = getEventBlockStyle(
@@ -94,7 +94,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                             );
                             
                             return (
-                              <div key={event.id} className="absolute p-1" style={style}>
+                              <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
                                 <EventBlock event={event} />
                               </div>
                             );
