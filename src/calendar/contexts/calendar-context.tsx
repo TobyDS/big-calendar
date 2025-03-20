@@ -31,6 +31,7 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   closeEventDetailsDialog: () => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CalendarContext = createContext<ICalendarContext<any, any>>({} as ICalendarContext<any, any>);
 
 interface CalendarProviderProps<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser> {
