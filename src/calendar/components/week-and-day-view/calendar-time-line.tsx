@@ -1,7 +1,7 @@
 import { format, isSameDay, isSameWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { MINUTES_IN_DAY, UPDATE_INTERVAL_MS } from "@/calendar/helpers";
+import { MINUTES_IN_HOUR, CELL_HEIGHT_PX } from "@/calendar/helpers";
 
 interface Props {
   view: 'week' | 'day';
@@ -9,10 +9,10 @@ interface Props {
 
 export function CalendarTimeline({ view }: Props) {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { selectedDate, weekStartsOn } = useCalendar();
+  const { selectedDate, weekStartsOn, dayBoundaries } = useCalendar();
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), UPDATE_INTERVAL_MS);
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update every minute
     return () => clearInterval(timer);
   }, []);
 
@@ -21,11 +21,26 @@ export function CalendarTimeline({ view }: Props) {
     ? isSameDay(currentTime, selectedDate)
     : isSameWeek(currentTime, selectedDate, { weekStartsOn });
 
-  if (!shouldShow) return null;
+  // Check if current time is within day boundaries
+  const isWithinBoundaries = () => {
+    const startHour = dayBoundaries?.startHour ?? 0;
+    const endHour = dayBoundaries?.endHour ?? 23;
+    const currentHour = currentTime.getHours();
+    return currentHour >= startHour && currentHour <= endHour;
+  };
+
+  if (!shouldShow || !isWithinBoundaries()) return null;
 
   const getCurrentTimePosition = () => {
-    const minutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-    return (minutes / MINUTES_IN_DAY) * 100;
+    const startHour = dayBoundaries?.startHour ?? 0;
+    const currentHour = currentTime.getHours();
+    const currentMinute = currentTime.getMinutes();
+    
+    // Calculate minutes from the start of the visible range
+    const minutesFromStart = (currentHour - startHour) * MINUTES_IN_HOUR + currentMinute;
+    
+    // Convert to pixels based on our grid
+    return (minutesFromStart / MINUTES_IN_HOUR) * CELL_HEIGHT_PX;
   };
 
   const formatCurrentTime = () => {
@@ -45,7 +60,7 @@ export function CalendarTimeline({ view }: Props) {
     <div
       className="pointer-events-none absolute inset-x-0 z-50"
       style={{ 
-        top: `${getCurrentTimePosition()}%`,
+        top: `${getCurrentTimePosition()}px`,
         "--time-line-width": "1px"
       } as React.CSSProperties}
     >

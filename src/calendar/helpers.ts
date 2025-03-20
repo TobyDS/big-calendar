@@ -207,9 +207,9 @@ export function groupEvents(dayEvents: IEvent[]) {
 
 /** Get array of hours to display in the calendar */
 export function getDisplayHours(dayBoundaries?: { startHour: number; endHour: number }) {
-  // Default to showing 6am to 10pm if no boundaries
-  const start = dayBoundaries?.startHour ?? 6;
-  const end = dayBoundaries?.endHour ?? 22;
+  // Default to showing full day (0-23) if no boundaries
+  const start = dayBoundaries?.startHour ?? 0;
+  const end = dayBoundaries?.endHour ?? 23;
   
   // Ensure valid range
   const validStart = Math.max(0, Math.min(start, 23));
@@ -234,19 +234,15 @@ export function getEventBlockStyle(
   const startDate = parseISO(event.startDate);
   const endDate = parseISO(event.endDate);
   
-  // Default to showing 6am to 10pm if no boundaries
-  const startHour = dayBoundaries?.startHour ?? 6;
-  const endHour = dayBoundaries?.endHour ?? 22;
+  // Default to showing full day (0-23) if no boundaries
+  const startHour = dayBoundaries?.startHour ?? 0;
+  const endHour = dayBoundaries?.endHour ?? 23;
   
-  // Ensure valid range
-  const validStartHour = Math.max(0, Math.min(startHour, 23));
-  const validEndHour = Math.max(validStartHour, Math.min(endHour, 23));
-
   // Calculate minutes for the event and the day boundaries
   const eventStartMinutes = startDate.getHours() * MINUTES_IN_HOUR + startDate.getMinutes();
   const eventEndMinutes = endDate.getHours() * MINUTES_IN_HOUR + endDate.getMinutes();
-  const visibleStartMinutes = validStartHour * MINUTES_IN_HOUR;
-  const visibleEndMinutes = validEndHour * MINUTES_IN_HOUR + MINUTES_IN_HOUR; // Add one hour to include the full last hour
+  const visibleStartMinutes = startHour * MINUTES_IN_HOUR;
+  const visibleEndMinutes = endHour * MINUTES_IN_HOUR + MINUTES_IN_HOUR; // Add one hour to include the full last hour
   
   // Calculate position and size
   const minuteHeight = CELL_HEIGHT_PX / MINUTES_IN_HOUR;
