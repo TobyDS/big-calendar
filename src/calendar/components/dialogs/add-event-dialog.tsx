@@ -18,11 +18,7 @@ import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 
-interface IProps {
-  children: React.ReactNode;
-}
-
-export function AddEventDialog({ children }: IProps) {
+export function AddEventDialog() {
   const { eventDialog, closeEventDialog } = useCalendar();
 
   const form = useForm<TEventFormData>({
@@ -54,14 +50,12 @@ export function AddEventDialog({ children }: IProps) {
 
   return (
     <Dialog.Root open={eventDialog.isOpen} onOpenChange={open => !open && closeEventDialog()}>
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
-
-      <Dialog.Content>
+      <Dialog.Content aria-describedby="event-form-description">
         <Dialog.Close />
 
         <Dialog.Header>
           <Dialog.Title>Add New Event</Dialog.Title>
-          <Dialog.Description>Create a new event for your calendar.</Dialog.Description>
+          <Dialog.Description id="event-form-description" className="sr-only">Fill in the details to create a new calendar event.</Dialog.Description>
         </Dialog.Header>
 
         <Dialog.Body>

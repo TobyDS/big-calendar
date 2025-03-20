@@ -4,26 +4,25 @@ import { format, parseISO } from "date-fns";
 import { Calendar, Clock, Text, User } from "lucide-react";
 
 import { Dialog } from "@/components/ui/dialog";
-import type { IEvent } from "@/calendar/interfaces";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 
-interface IProps {
-  event: IEvent;
-  children: React.ReactNode;
-}
+export function EventDetailsDialog() {
+  const { eventDetailsDialog, closeEventDetailsDialog } = useCalendar();
+  const event = eventDetailsDialog.event;
 
-export function EventDetailsDialog({ event, children }: IProps) {
+  if (!event) return null;
+
   const startDate = parseISO(event.startDate);
   const endDate = parseISO(event.endDate);
 
   return (
-    <Dialog.Root>
-      <Dialog.Trigger asChild>{children}</Dialog.Trigger>
-
-      <Dialog.Content size="xs">
+    <Dialog.Root open={eventDetailsDialog.isOpen} onOpenChange={open => !open && closeEventDetailsDialog()}>
+      <Dialog.Content size="xs" aria-describedby="event-details-description">
         <Dialog.Close />
 
         <Dialog.Header>
-          <Dialog.Title>{event.title}</Dialog.Title>
+          <Dialog.Title>Event Details</Dialog.Title>
+          <Dialog.Description id="event-details-description" className="sr-only">Details for {event.title}</Dialog.Description>
         </Dialog.Header>
 
         <Dialog.Body>

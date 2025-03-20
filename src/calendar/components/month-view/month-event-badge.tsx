@@ -43,7 +43,7 @@ interface IProps {
 }
 
 export function MonthEventBadge({ event, cellDate, className }: IProps) {
-  const { badgeVariant } = useCalendar();
+  const { badgeVariant, openEventDetailsDialog } = useCalendar();
 
   const itemStart = startOfDay(parseISO(event.startDate));
   const itemEnd = endOfDay(parseISO(event.endDate));
@@ -54,18 +54,21 @@ export function MonthEventBadge({ event, cellDate, className }: IProps) {
   const eventBadgeClasses = cn(eventBadgeVariants({ color, className }));
 
   return (
-    <EventDetailsDialog event={event}>
-      <div role="button" tabIndex={0} className={eventBadgeClasses}>
-        <div className="flex items-center gap-1.5 truncate">
-          {badgeVariant === "dot" && (
-            <svg width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-              <circle cx="4" cy="4" r="4" />
-            </svg>
-          )}
-          <p className="flex-1 truncate font-semibold">{event.title}</p>
-        </div>
-        <span>{format(new Date(event.startDate), "HH:mm")}</span>
+    <div 
+      role="button" 
+      tabIndex={0} 
+      className={eventBadgeClasses}
+      onClick={() => openEventDetailsDialog(event)}
+    >
+      <div className="flex items-center gap-1.5 truncate">
+        {badgeVariant === "dot" && (
+          <svg width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
+            <circle cx="4" cy="4" r="4" />
+          </svg>
+        )}
+        <p className="flex-1 truncate font-semibold">{event.title}</p>
       </div>
-    </EventDetailsDialog>
+      <span>{format(new Date(event.startDate), "HH:mm")}</span>
+    </div>
   );
 }

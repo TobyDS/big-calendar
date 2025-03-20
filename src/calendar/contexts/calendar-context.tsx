@@ -23,6 +23,12 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   };
   openEventDialog: (startDate?: Date, startTime?: { hour: number; minute: number }) => void;
   closeEventDialog: () => void;
+  eventDetailsDialog: {
+    isOpen: boolean;
+    event?: T;
+  };
+  openEventDetailsDialog: (event: T) => void;
+  closeEventDetailsDialog: () => void;
 }
 
 const CalendarContext = createContext<ICalendarContext<any, any>>({} as ICalendarContext<any, any>);
@@ -50,6 +56,12 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
   }>({
     isOpen: false
   });
+  const [eventDetailsDialog, setEventDetailsDialog] = useState<{
+    isOpen: boolean;
+    event?: T;
+  }>({
+    isOpen: false
+  });
 
   const handleSelectDate = (date: Date | undefined) => {
     if (!date) return;
@@ -70,6 +82,19 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
     });
   };
 
+  const openEventDetailsDialog = (event: T) => {
+    setEventDetailsDialog({
+      isOpen: true,
+      event
+    });
+  };
+
+  const closeEventDetailsDialog = () => {
+    setEventDetailsDialog({
+      isOpen: false
+    });
+  };
+
   return (
     <CalendarContext.Provider
       value={{ 
@@ -85,7 +110,10 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         hasUsers: !!users?.length,
         eventDialog,
         openEventDialog,
-        closeEventDialog
+        closeEventDialog,
+        eventDetailsDialog,
+        openEventDetailsDialog,
+        closeEventDetailsDialog
       }}
     >
       {children}

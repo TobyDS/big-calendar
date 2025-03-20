@@ -47,7 +47,7 @@ interface IProps extends HTMLAttributes<HTMLDivElement>, Omit<VariantProps<typeo
 }
 
 export function EventBlock({ event, className }: IProps) {
-  const { badgeVariant } = useCalendar();
+  const { badgeVariant, openEventDetailsDialog } = useCalendar();
 
   const start = parseISO(event.startDate);
   const end = parseISO(event.endDate);
@@ -55,28 +55,31 @@ export function EventBlock({ event, className }: IProps) {
   const heightInPixels = (durationInMinutes / MINUTES_IN_HOUR) * CELL_HEIGHT_PX - EVENT_VERTICAL_PADDING;
 
   const color = (badgeVariant === "dot" ? `${event.color}-dot` : event.color) as VariantProps<typeof calendarWeekEventCardVariants>["color"];
-
   const calendarWeekEventCardClasses = cn(calendarWeekEventCardVariants({ color, className }), durationInMinutes < COMPACT_EVENT_THRESHOLD_MINUTES && "py-0 justify-center");
 
   return (
-    <EventDetailsDialog event={event}>
-      <div role="button" tabIndex={0} className={calendarWeekEventCardClasses} style={{ height: `${heightInPixels}px` }}>
-        <div className="flex items-center gap-1.5 truncate">
-          {badgeVariant === "dot" && (
-            <svg width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-              <circle cx="4" cy="4" r="4" />
-            </svg>
-          )}
-
-          <p className="truncate font-semibold">{event.title}</p>
-        </div>
-
-        {durationInMinutes > MIN_DURATION_FOR_TIME_DISPLAY && (
-          <p>
-            {format(start, "HH:mm a")} - {format(end, "HH:mm a")}
-          </p>
+    <div 
+      role="button" 
+      tabIndex={0} 
+      className={calendarWeekEventCardClasses} 
+      style={{ height: `${heightInPixels}px` }}
+      onClick={() => openEventDetailsDialog(event)}
+    >
+      <div className="flex items-center gap-1.5 truncate">
+        {badgeVariant === "dot" && (
+          <svg width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
+            <circle cx="4" cy="4" r="4" />
+          </svg>
         )}
+
+        <p className="truncate font-semibold">{event.title}</p>
       </div>
-    </EventDetailsDialog>
+
+      {durationInMinutes > MIN_DURATION_FOR_TIME_DISPLAY && (
+        <p>
+          {format(start, "HH:mm a")} - {format(end, "HH:mm a")}
+        </p>
+      )}
+    </div>
   );
 }
