@@ -17,6 +17,7 @@ import {
   differenceInMinutes,
   eachDayOfInterval,
   startOfDay,
+  areIntervalsOverlapping,
 } from "date-fns";
 
 import type { TCalendarView } from "@/calendar/types";
@@ -124,44 +125,92 @@ export function groupEvents(dayEvents: IEvent[]) {
     return bDuration - aDuration;
   });
 
-  // Create columns that can contain multiple non-overlapping events
-  const columns: Array<Array<{ event: IEvent; start: Date; end: Date }>> = [];
-
+  // Step 1: Group overlapping events
+  const overlappingGroups: IEvent[][] = [];
+  
   for (const event of sortedEvents) {
     const eventStart = parseISO(event.startDate);
     const eventEnd = parseISO(event.endDate);
-    let placed = false;
+    
+    // Find if this event overlaps with any existing group
+    let addedToGroup = false;
+    for (const group of overlappingGroups) {
+      // Check if event overlaps with any event in this group
+      const overlapsWithGroup = group.some(groupEvent => 
+        areIntervalsOverlapping(
+          { start: eventStart, end: eventEnd },
+          { start: parseISO(groupEvent.startDate), end: parseISO(groupEvent.endDate) }
+        )
+      );
 
-    // Try to find a column where this event can fit without overlapping
-    for (const column of columns) {
-      // Check if event can be placed in this column
-      const canFitInColumn = column.every(slot => {
-        // No overlap if current event ends before slot starts or starts after slot ends
-        return eventEnd <= slot.start || eventStart >= slot.end;
-      });
-
-      if (canFitInColumn) {
-        column.push({ event, start: eventStart, end: eventEnd });
-        placed = true;
+      if (overlapsWithGroup) {
+        group.push(event);
+        addedToGroup = true;
         break;
       }
     }
 
-    // If event couldn't fit in any existing column, create a new one
-    if (!placed) {
-      columns.push([{ event, start: eventStart, end: eventEnd }]);
+    // If doesn't overlap with any group, create new group
+    if (!addedToGroup) {
+      overlappingGroups.push([event]);
     }
   }
 
-  // Convert columns back to groups format
-  return columns.map(column => column.map(slot => slot.event));
+  // Step 2: For each group, create minimal columns
+  return overlappingGroups.map(group => {
+    if (group.length === 1) {
+      // Single event takes full width
+      return {
+        events: [{ event: group[0], column: 0 }],
+        totalColumns: 1
+      };
+    }
+
+    // For multiple events, find minimal column arrangement
+    const eventColumns: { event: IEvent; column: number }[] = [];
+    
+    for (const event of group) {
+      const eventStart = parseISO(event.startDate);
+      const eventEnd = parseISO(event.endDate);
+      
+      // Try each column until we find one where this event doesn't overlap
+      // with any events already in that column
+      let column = 0;
+      let placed = false;
+      
+      while (!placed) {
+        const eventsInColumn = eventColumns.filter(e => e.column === column);
+        const overlapsWithColumn = eventsInColumn.some(({ event: columnEvent }) =>
+          areIntervalsOverlapping(
+            { start: eventStart, end: eventEnd },
+            { start: parseISO(columnEvent.startDate), end: parseISO(columnEvent.endDate) }
+          )
+        );
+
+        if (!overlapsWithColumn) {
+          eventColumns.push({ event, column });
+          placed = true;
+        } else {
+          column++;
+        }
+      }
+    }
+
+    // Calculate total columns needed for this group
+    const totalColumns = Math.max(...eventColumns.map(e => e.column)) + 1;
+
+    return {
+      events: eventColumns,
+      totalColumns
+    };
+  });
 }
 
 export function getEventBlockStyle(
   event: IEvent,
-  groupIndex: number,
-  totalGroups: number,
-  timeBoundaries: { startHour: number; endHour: number; } | null = null
+  column: number,
+  timeBoundaries: { startHour: number; endHour: number; } | null = null,
+  totalColumns: number = 1
 ) {
   const startDate = parseISO(event.startDate);
   const endDate = parseISO(event.endDate);
@@ -171,62 +220,33 @@ export function getEventBlockStyle(
   // Clamp event times to boundaries
   const eventStartHour = Math.max(startDate.getHours(), startHour);
   const eventEndHour = Math.min(endDate.getHours(), endHour);
-  const eventStartMinutes = eventStartHour * MINUTES_IN_HOUR + startDate.getMinutes();
-  const eventEndMinutes = eventEndHour * MINUTES_IN_HOUR + endDate.getMinutes();
+  
+  // Calculate minutes since start of day
+  const eventStartMinutes = (eventStartHour * MINUTES_IN_HOUR) + startDate.getMinutes();
+  const eventEndMinutes = (eventEndHour * MINUTES_IN_HOUR) + endDate.getMinutes();
   const dayStartMinutes = startHour * MINUTES_IN_HOUR;
 
-  const top = ((eventStartMinutes - dayStartMinutes) / MINUTES_IN_HOUR) * CELL_HEIGHT_PX + EVENT_VERTICAL_PADDING;
-  const height = ((eventEndMinutes - eventStartMinutes) / MINUTES_IN_HOUR) * CELL_HEIGHT_PX - EVENT_VERTICAL_PADDING * 2;
+  // Calculate top position: each hour is CELL_HEIGHT_PX tall
+  const minuteHeight = CELL_HEIGHT_PX / MINUTES_IN_HOUR;
+  const top = (eventStartMinutes - dayStartMinutes) * minuteHeight;
+  
+  // Calculate height based on duration
+  const height = (eventEndMinutes - eventStartMinutes) * minuteHeight;
 
-  // Calculate width and left position based on group
-  const baseWidth = totalGroups > 0 ? 95 / totalGroups : 95; // Leave small gap between events
-  const baseLeft = totalGroups > 0 ? (groupIndex * 95) / totalGroups : 0;
+  // Calculate width and left position based on total columns needed
+  const columnWidth = `${100 / totalColumns}%`;
+  const leftPosition = `${(100 / totalColumns) * column}%`;
 
   return {
     top: Math.round(top) + "px",
-    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px", // Ensure minimum height
-    width: Math.round(baseWidth) + "%",
-    left: Math.round(baseLeft) + "%",
+    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px",
+    width: columnWidth,
+    left: leftPosition,
   };
 }
 
 // ================ Month view helper functions ================ //
 
-export function getCalendarCells(selectedDate: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1): ICalendarCell[] {
-  const currentYear = selectedDate.getFullYear();
-  const currentMonth = selectedDate.getMonth();
-
-  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year: number, month: number) => {
-    const firstDay = new Date(year, month, 1).getDay();
-    return (firstDay + DAYS_IN_WEEK - weekStartsOn) % DAYS_IN_WEEK;
-  };
-
-  const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-  const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
-  const daysInPrevMonth = getDaysInMonth(currentYear, currentMonth - 1);
-  const totalDays = firstDayOfMonth + daysInMonth;
-
-  const prevMonthCells = Array.from({ length: firstDayOfMonth }, (_, i) => ({
-    day: daysInPrevMonth - firstDayOfMonth + i + 1,
-    currentMonth: false,
-    date: new Date(currentYear, currentMonth - 1, daysInPrevMonth - firstDayOfMonth + i + 1),
-  }));
-
-  const currentMonthCells = Array.from({ length: daysInMonth }, (_, i) => ({
-    day: i + 1,
-    currentMonth: true,
-    date: new Date(currentYear, currentMonth, i + 1),
-  }));
-
-  const nextMonthCells = Array.from({ length: (DAYS_IN_WEEK - (totalDays % DAYS_IN_WEEK)) % DAYS_IN_WEEK }, (_, i) => ({
-    day: i + 1,
-    currentMonth: false,
-    date: new Date(currentYear, currentMonth + 1, i + 1),
-  }));
-
-  return [...prevMonthCells, ...currentMonthCells, ...nextMonthCells];
-}
 
 export function calculateMonthEventPositions(singleDayEvents: IEvent[], selectedDate: Date) {
   const monthStart = startOfMonth(selectedDate);
@@ -280,19 +300,25 @@ export function calculateMonthEventPositions(singleDayEvents: IEvent[], selected
 export function getMonthCellEvents(date: Date, events: IEvent[], eventPositions: Record<string, number>) {
   const eventsForDate = events.filter(event => {
     const eventStart = parseISO(event.startDate);
-    const eventEnd = parseISO(event.endDate);
-    return (date >= eventStart && date <= eventEnd) || isSameDay(date, eventStart) || isSameDay(date, eventEnd);
+    return isSameDay(date, eventStart);
   });
 
   return eventsForDate
     .map(event => ({
       ...event,
       position: eventPositions[event.id] ?? -1,
-      isMultiDay: event.startDate !== event.endDate,
     }))
-    .sort((a, b) => {
-      if (a.isMultiDay && !b.isMultiDay) return -1;
-      if (!a.isMultiDay && b.isMultiDay) return 1;
-      return a.position - b.position;
-    });
+    .sort((a, b) => a.position - b.position);
+}
+
+export function getCalendarCells(date: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1): ICalendarCell[] {
+  const start = startOfWeek(startOfMonth(date), { weekStartsOn });
+  const end = endOfWeek(endOfMonth(date), { weekStartsOn });
+  const days = eachDayOfInterval({ start, end });
+
+  return days.map(day => ({
+    day: day.getDate(),
+    currentMonth: isSameMonth(day, date),
+    date: day,
+  }));
 }

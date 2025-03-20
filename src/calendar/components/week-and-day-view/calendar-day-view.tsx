@@ -1,5 +1,5 @@
 import { Calendar, Clock, User } from "lucide-react";
-import { parseISO, areIntervalsOverlapping, format, isWithinInterval } from "date-fns";
+import { parseISO, format, isWithinInterval } from "date-fns";
 
 import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,12 +9,13 @@ import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
 import type { IEvent } from "@/calendar/interfaces";
+
 interface IProps {
   singleDayEvents: IEvent[];
 }
 
 export function CalendarDayView({ singleDayEvents }: IProps) {
-  const { selectedDate, setSelectedDate, users, weekStartsOn } = useCalendar();
+  const { selectedDate, setSelectedDate, users, weekStartsOn, hasUsers } = useCalendar();
 
   const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
 
@@ -89,21 +90,15 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
                   </div>
                 ))}
 
-                {groupedEvents.map((group, groupIndex) =>
-                  group.map(event => {
-                    let style = getEventBlockStyle(event, groupIndex, groupedEvents.length);
-                    const hasOverlap = groupedEvents.some(
-                      (otherGroup, otherIndex) =>
-                        otherIndex !== groupIndex &&
-                        otherGroup.some(otherEvent =>
-                          areIntervalsOverlapping(
-                            { start: parseISO(event.startDate), end: parseISO(event.endDate) },
-                            { start: parseISO(otherEvent.startDate), end: parseISO(otherEvent.endDate) }
-                          )
-                        )
+              {/* Events */}
+                {groupedEvents.map(group =>
+                  group.events.map(({ event, column }) => {
+                    const style = getEventBlockStyle(
+                      event,
+                      column,
+                      null,
+                      group.totalColumns
                     );
-
-                    if (!hasOverlap) style = { ...style, width: "100%", left: "0%" };
 
                     return (
                       <div key={event.id} className="absolute p-1" style={style}>
@@ -114,6 +109,7 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
                 )}
               </div>
 
+              {/* Current time indicator */}
               <CalendarTimeline view="day" />
             </div>
           </div>
@@ -148,7 +144,7 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
             <ScrollArea className="h-[422px] px-4" type="always">
               <div className="space-y-6 pb-4">
                 {currentEvents.map(event => {
-                  const user = users.find(user => user.id === event.user.id);
+                  const user = hasUsers && event.user ? users?.find(user => user.id === event.user?.id) : null;
 
                   return (
                     <div key={event.id} className="space-y-1.5">

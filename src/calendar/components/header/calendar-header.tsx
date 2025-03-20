@@ -7,6 +7,7 @@ import { UserSelect } from "@/calendar/components/header/user-select";
 import { TodayButton } from "@/calendar/components/header/today-button";
 import { DateNavigator } from "@/calendar/components/header/date-navigator";
 import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 import type { IEvent } from "@/calendar/interfaces";
 import type { TCalendarView } from "@/calendar/types";
@@ -17,6 +18,8 @@ interface IProps {
 }
 
 export function CalendarHeader({ view, events }: IProps) {
+  const { hasUsers } = useCalendar();
+
   return (
     <div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex items-center gap-3">
@@ -46,7 +49,7 @@ export function CalendarHeader({ view, events }: IProps) {
         </ButtonGroup>
 
         <div className="flex items-center gap-1.5">
-          <UserSelect />
+          {hasUsers && <UserSelect />}
 
           <AddEventDialog>
             <Button size="sm">

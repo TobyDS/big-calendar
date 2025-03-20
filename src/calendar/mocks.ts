@@ -1,5 +1,5 @@
 import type { TEventColor } from "@/calendar/types";
-import type { IEvent, IUser } from "@/calendar/interfaces";
+import type { IDefaultEvent, IUser } from "@/calendar/interfaces";
 
 // ================================== //
 
@@ -118,8 +118,8 @@ const events = [
   "Home renovation meeting",
 ];
 
-const mockGenerator = (numberOfEvents: number): IEvent[] => {
-  const result: IEvent[] = [];
+const mockGenerator = (numberOfEvents: number): IDefaultEvent[] => {
+  const result: IDefaultEvent[] = [];
   let currentId = 1;
 
   // Date range: 30 days before and after now
@@ -146,12 +146,11 @@ const mockGenerator = (numberOfEvents: number): IEvent[] => {
       endDate: endDate.toISOString(),
       title: events[Math.floor(Math.random() * events.length)],
       color: colors[Math.floor(Math.random() * colors.length)],
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      user: USERS_MOCK[Math.floor(Math.random() * USERS_MOCK.length)],
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     });
   }
 
   return result;
 };
 
-export const CALENDAR_ITEMS_MOCK: IEvent[] = mockGenerator(80);
+export const CALENDAR_ITEMS_MOCK: IDefaultEvent[] = mockGenerator(80);

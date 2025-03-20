@@ -1,11 +1,11 @@
 import { CalendarProvider } from "@/calendar/contexts/calendar-context";
-import { getEvents, getUsers } from "@/calendar/requests";
+import { getEvents } from "@/calendar/requests";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const [events, users] = await Promise.all([getEvents(), getUsers()]);
+  const events = await getEvents();
 
   return (
-    <CalendarProvider users={users} events={events} weekStartsOn="Monday">
+    <CalendarProvider events={events} weekStartsOn="Monday">
       <div className="mx-auto flex max-w-screen-2xl flex-col gap-4 px-8 py-4">
         {children}
       </div>

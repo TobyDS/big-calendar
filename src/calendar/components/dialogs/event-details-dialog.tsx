@@ -28,13 +28,15 @@ export function EventDetailsDialog({ event, children }: IProps) {
 
         <Dialog.Body>
           <div className="space-y-4">
-            <div className="flex items-start gap-2">
-              <User className="mt-1 size-4 shrink-0 text-t-secondary" />
-              <div>
-                <p className="text-sm font-medium">Responsible</p>
-                <p className="text-sm text-t-secondary">{event.user.name}</p>
+            {event.user && (
+              <div className="flex items-start gap-2">
+                <User className="mt-1 size-4 shrink-0 text-t-secondary" />
+                <div>
+                  <p className="text-sm font-medium">Responsible</p>
+                  <p className="text-sm text-t-secondary">{event.user.name}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-start gap-2">
               <Calendar className="mt-1 size-4 shrink-0 text-t-secondary" />
@@ -52,13 +54,15 @@ export function EventDetailsDialog({ event, children }: IProps) {
               </div>
             </div>
 
-            <div className="flex items-start gap-2">
-              <Text className="mt-1 size-4 shrink-0 text-t-secondary" />
-              <div>
-                <p className="text-sm font-medium">Description</p>
-                <p className="text-sm text-t-secondary">{event.description}</p>
+            {event.description && (
+              <div className="flex items-start gap-2">
+                <Text className="mt-1 size-4 shrink-0 text-t-secondary" />
+                <div>
+                  <p className="text-sm font-medium">Description</p>
+                  <p className="text-sm text-t-secondary">{event.description}</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Dialog.Body>
       </Dialog.Content>

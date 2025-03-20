@@ -15,7 +15,7 @@ interface IProps {
 }
 
 export function ClientContainer({ view }: IProps) {
-  const { selectedDate, selectedUserId, events } = useCalendar();
+  const { selectedDate, selectedUserId, events, hasUsers } = useCalendar();
 
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
@@ -26,10 +26,10 @@ export function ClientContainer({ view }: IProps) {
       const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
       const isInSelectedMonth = itemStartDate <= monthEnd && itemEndDate >= monthStart;
-      const isUserMatch = selectedUserId === "all" || event.user.id === selectedUserId;
+      const isUserMatch = !hasUsers || selectedUserId === "all" || (event.user && event.user.id === selectedUserId);
       return isInSelectedMonth && isUserMatch;
     });
-  }, [selectedDate, selectedUserId, events]);
+  }, [selectedDate, selectedUserId, events, hasUsers]);
 
   const singleDayEvents = filteredEvents.filter(event => {
     const startDate = parseISO(event.startDate);
