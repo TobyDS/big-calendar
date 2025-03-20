@@ -5,7 +5,6 @@ import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HOURS_IN_DAY, CELL_HEIGHT_PX, groupEvents, getEventBlockStyle } from "@/calendar/helpers";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
 import type { IEvent } from "@/calendar/interfaces";

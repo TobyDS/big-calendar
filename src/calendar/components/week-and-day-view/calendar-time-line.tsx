@@ -1,4 +1,4 @@
-import { format, isSameDay, isSameWeek, startOfWeek } from "date-fns";
+import { format, isSameDay, isSameWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { MINUTES_IN_DAY, UPDATE_INTERVAL_MS } from "@/calendar/helpers";

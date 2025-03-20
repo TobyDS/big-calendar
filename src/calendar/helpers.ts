@@ -22,7 +22,6 @@ import {
 
 import type { TCalendarView } from "@/calendar/types";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
-import { useCalendar } from "./contexts/calendar-context";
 
 // Calendar Constants
 /** Number of days in a week */

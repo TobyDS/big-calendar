@@ -5,8 +5,7 @@ import { Button, ButtonGroup } from "@/components/ui/button";
 
 import { UserSelect } from "@/calendar/components/header/user-select";
 import { TodayButton } from "@/calendar/components/header/today-button";
-import { DateNavigator } from "@/calendar/components/header/date-navigator";
-import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
+import { DateNavigator } from "@/calendar/components/header/date-navigator";;
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 import type { IEvent } from "@/calendar/interfaces";

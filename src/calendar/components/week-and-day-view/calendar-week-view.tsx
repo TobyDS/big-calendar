@@ -1,8 +1,7 @@
-import { startOfWeek, addDays, format, parseISO, isSameDay, areIntervalsOverlapping } from "date-fns";
+import { startOfWeek, addDays, format, parseISO, isSameDay } from "date-fns";
 import { HOURS_IN_DAY, DAYS_IN_WEEK, CELL_HEIGHT_PX } from "@/calendar/helpers";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
 

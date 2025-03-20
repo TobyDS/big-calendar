@@ -19,7 +19,6 @@ export function DayCell({ cell, events, eventPositions }: IProps) {
   const { day, currentMonth, date } = cell;
 
   const cellEvents = useMemo(() => getMonthCellEvents(date, events, eventPositions), [date, events, eventPositions]);
-  const isSunday = date.getDay() === 0;
 
   return (
     <div className="flex flex-col gap-1 py-1.5 lg:py-2">
