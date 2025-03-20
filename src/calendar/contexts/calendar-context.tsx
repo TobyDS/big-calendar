@@ -13,6 +13,10 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   badgeVariant: "dot" | "colored";
   setBadgeVariant: (variant: "dot" | "colored") => void;
   weekStartsOn: WeekStartNumber;
+  dayBoundaries?: {
+    startHour: number;
+    endHour: number;
+  };
   users?: U[];
   events: T[];
   hasUsers: boolean;
@@ -39,13 +43,18 @@ interface CalendarProviderProps<T extends IBaseEvent = IDefaultEvent, U extends 
   users?: U[];
   events: T[];
   weekStartsOn?: WeekStartDay;
+  dayBoundaries?: {
+    startHour: number;
+    endHour: number;
+  };
 }
 
 export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser>({ 
   children, 
   users, 
   events, 
-  weekStartsOn = "Sunday" 
+  weekStartsOn = "Sunday",
+  dayBoundaries
 }: CalendarProviderProps<T, U>) {
   const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -106,6 +115,7 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         badgeVariant, 
         setBadgeVariant, 
         weekStartsOn: WeekStartDay[weekStartsOn],
+        dayBoundaries,
         users, 
         events,
         hasUsers: !!users?.length,

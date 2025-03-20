@@ -1,5 +1,5 @@
 import { startOfWeek, addDays, format, parseISO, isSameDay } from "date-fns";
-import { HOURS_IN_DAY, DAYS_IN_WEEK, CELL_HEIGHT_PX } from "@/calendar/helpers";
+import { DAYS_IN_WEEK, CELL_HEIGHT_PX, getCalendarHeight, getDisplayHours } from "@/calendar/helpers";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
@@ -14,11 +14,12 @@ interface IProps {
 }
 
 export function CalendarWeekView({ singleDayEvents }: IProps) {
-  const { selectedDate, weekStartsOn, openEventDialog } = useCalendar();
+  const { selectedDate, weekStartsOn, openEventDialog, dayBoundaries } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn });
   const weekDays = Array.from({ length: DAYS_IN_WEEK }, (_, i) => addDays(weekStart, i));
-  const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
+  const hours = getDisplayHours(dayBoundaries);
+  const calendarHeight = getCalendarHeight(dayBoundaries);
 
   return (
     <>
@@ -43,10 +44,10 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
           </div>
         </div>
 
-        <ScrollArea className="h-[736px]" type="always">
+        <ScrollArea className="relative h-[736px]" type="always" orientation="vertical">
           <div className="flex">
             {/* Hours column */}
-            <div className="relative w-18">
+            <div className="relative w-18" style={{ height: `${calendarHeight}px` }}>
               {hours.map((hour, index) => (
                 <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                   <div className="absolute -top-3 right-2 flex h-6 items-center">
@@ -57,14 +58,14 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
             </div>
 
             {/* Week grid */}
-            <div className="relative flex-1 border-l">
-              <div className="grid grid-cols-7 divide-x">
+            <div className="relative flex-1 border-l" style={{ height: `${calendarHeight}px` }}>
+              <div className="grid h-full grid-cols-7 divide-x">
                 {weekDays.map((day, dayIndex) => {
                   const dayEvents = singleDayEvents.filter(event => isSameDay(parseISO(event.startDate), day) || isSameDay(parseISO(event.endDate), day));
                   const groupedEvents = groupEvents(dayEvents);
 
                   return (
-                    <div key={dayIndex} className="relative">
+                    <div key={dayIndex} className="relative h-full">
                       {hours.map((hour, index) => (
                         <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                           {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
@@ -82,12 +83,13 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                         </div>
                       ))}
 
+                      <div className="absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
                         {groupedEvents.map(group =>
                           group.events.map(({ event, column }) => {
                             const style = getEventBlockStyle(
                               event,
                               column,
-                              null,
+                              dayBoundaries,
                               group.totalColumns
                             );
                             
@@ -98,6 +100,7 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                             );
                           })
                         )}
+                      </div>
                     </div>
                   );
                 })}

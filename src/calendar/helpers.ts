@@ -205,42 +205,70 @@ export function groupEvents(dayEvents: IEvent[]) {
   });
 }
 
+/** Get array of hours to display in the calendar */
+export function getDisplayHours(dayBoundaries?: { startHour: number; endHour: number }) {
+  // Default to showing 6am to 10pm if no boundaries
+  const start = dayBoundaries?.startHour ?? 6;
+  const end = dayBoundaries?.endHour ?? 22;
+  
+  // Ensure valid range
+  const validStart = Math.max(0, Math.min(start, 23));
+  const validEnd = Math.max(validStart, Math.min(end, 23));
+  
+  return Array.from({ length: validEnd - validStart + 1 }, (_, i) => validStart + i);
+}
+
+/** Get total height of the calendar in pixels */
+export function getCalendarHeight(dayBoundaries?: { startHour: number; endHour: number }) {
+  const hours = getDisplayHours(dayBoundaries);
+  return hours.length * CELL_HEIGHT_PX;
+}
+
+/** Get event block style with time boundary support */
 export function getEventBlockStyle(
   event: IEvent,
   column: number,
-  timeBoundaries: { startHour: number; endHour: number; } | null = null,
+  dayBoundaries: { startHour: number; endHour: number; } | null = null,
   totalColumns: number = 1
 ) {
   const startDate = parseISO(event.startDate);
   const endDate = parseISO(event.endDate);
-  const startHour = timeBoundaries?.startHour ?? 0;
-  const endHour = timeBoundaries?.endHour ?? 23;
-
-  // Clamp event times to boundaries
-  const eventStartHour = Math.max(startDate.getHours(), startHour);
-  const eventEndHour = Math.min(endDate.getHours(), endHour);
   
-  // Calculate minutes since start of day
-  const eventStartMinutes = (eventStartHour * MINUTES_IN_HOUR) + startDate.getMinutes();
-  const eventEndMinutes = (eventEndHour * MINUTES_IN_HOUR) + endDate.getMinutes();
-  const dayStartMinutes = startHour * MINUTES_IN_HOUR;
+  // Default to showing 6am to 10pm if no boundaries
+  const startHour = dayBoundaries?.startHour ?? 6;
+  const endHour = dayBoundaries?.endHour ?? 22;
+  
+  // Ensure valid range
+  const validStartHour = Math.max(0, Math.min(startHour, 23));
+  const validEndHour = Math.max(validStartHour, Math.min(endHour, 23));
 
-  // Calculate top position: each hour is CELL_HEIGHT_PX tall
+  // Calculate minutes for the event and the day boundaries
+  const eventStartMinutes = startDate.getHours() * MINUTES_IN_HOUR + startDate.getMinutes();
+  const eventEndMinutes = endDate.getHours() * MINUTES_IN_HOUR + endDate.getMinutes();
+  const visibleStartMinutes = validStartHour * MINUTES_IN_HOUR;
+  const visibleEndMinutes = validEndHour * MINUTES_IN_HOUR + MINUTES_IN_HOUR; // Add one hour to include the full last hour
+  
+  // Calculate position and size
   const minuteHeight = CELL_HEIGHT_PX / MINUTES_IN_HOUR;
-  const top = (eventStartMinutes - dayStartMinutes) * minuteHeight;
   
-  // Calculate height based on duration
-  const height = (eventEndMinutes - eventStartMinutes) * minuteHeight;
+  // Calculate top position relative to the start of the visible range
+  const top = (eventStartMinutes - visibleStartMinutes) * minuteHeight;
+  
+  // Calculate height based on event duration, clamped to visible range
+  const clampedEndMinutes = Math.min(eventEndMinutes, visibleEndMinutes);
+  const clampedStartMinutes = Math.max(eventStartMinutes, visibleStartMinutes);
+  const height = (clampedEndMinutes - clampedStartMinutes) * minuteHeight;
 
-  // Calculate width and left position based on total columns needed
+  // Calculate width and left position
   const columnWidth = `${100 / totalColumns}%`;
   const leftPosition = `${(100 / totalColumns) * column}%`;
 
   return {
     top: Math.round(top) + "px",
-    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px",
+    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px", // Minimum height for visibility
     width: columnWidth,
     left: leftPosition,
+    position: "absolute" as const,
   };
 }
 
