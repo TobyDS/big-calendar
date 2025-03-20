@@ -25,11 +25,13 @@ export function CalendarTimeline({ view }: Props) {
   const isWithinBoundaries = () => {
     const startHour = dayBoundaries?.startHour ?? 0;
     const endHour = dayBoundaries?.endHour ?? 23;
-    const currentHour = currentTime.getHours();
-    return currentHour >= startHour && currentHour <= endHour;
+    
+    const currentMinutes = currentTime.getHours() * MINUTES_IN_HOUR + currentTime.getMinutes();
+    const startMinutes = startHour * MINUTES_IN_HOUR;
+    const endMinutes = endHour * MINUTES_IN_HOUR;
+    
+    return currentMinutes >= startMinutes && currentMinutes < endMinutes;
   };
-
-  if (!shouldShow || !isWithinBoundaries()) return null;
 
   const getCurrentTimePosition = () => {
     const startHour = dayBoundaries?.startHour ?? 0;
@@ -38,10 +40,11 @@ export function CalendarTimeline({ view }: Props) {
     
     // Calculate minutes from the start of the visible range
     const minutesFromStart = (currentHour - startHour) * MINUTES_IN_HOUR + currentMinute;
-    
-    // Convert to pixels based on our grid
     return (minutesFromStart / MINUTES_IN_HOUR) * CELL_HEIGHT_PX;
   };
+
+  // Don't render anything if outside today/current week or outside boundaries
+  if (!shouldShow || !isWithinBoundaries()) return null;
 
   const formatCurrentTime = () => {
     return format(currentTime, "hh:mm a");

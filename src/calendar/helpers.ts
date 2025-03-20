@@ -215,7 +215,8 @@ export function getDisplayHours(dayBoundaries?: { startHour: number; endHour: nu
   const validStart = Math.max(0, Math.min(start, 23));
   const validEnd = Math.max(validStart, Math.min(end, 23));
   
-  return Array.from({ length: validEnd - validStart + 1 }, (_, i) => validStart + i);
+  // Create array from start hour up to (but not including) end hour
+  return Array.from({ length: validEnd - validStart }, (_, i) => validStart + i);
 }
 
 /** Get total height of the calendar in pixels */
@@ -242,7 +243,7 @@ export function getEventBlockStyle(
   const eventStartMinutes = startDate.getHours() * MINUTES_IN_HOUR + startDate.getMinutes();
   const eventEndMinutes = endDate.getHours() * MINUTES_IN_HOUR + endDate.getMinutes();
   const visibleStartMinutes = startHour * MINUTES_IN_HOUR;
-  const visibleEndMinutes = endHour * MINUTES_IN_HOUR + MINUTES_IN_HOUR; // Add one hour to include the full last hour
+  const visibleEndMinutes = endHour * MINUTES_IN_HOUR; // Stop exactly at the end hour
   
   // Calculate position and size
   const minuteHeight = CELL_HEIGHT_PX / MINUTES_IN_HOUR;
