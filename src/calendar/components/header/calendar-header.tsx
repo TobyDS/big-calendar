@@ -18,7 +18,7 @@ interface IProps {
 }
 
 export function CalendarHeader({ view, events }: IProps) {
-  const { hasUsers } = useCalendar();
+  const { hasUsers, openEventDialog } = useCalendar();
 
   return (
     <div className="flex flex-col gap-4 border-b p-4 lg:flex-row lg:items-center lg:justify-between">
@@ -51,12 +51,10 @@ export function CalendarHeader({ view, events }: IProps) {
         <div className="flex items-center gap-1.5">
           {hasUsers && <UserSelect />}
 
-          <AddEventDialog>
-            <Button size="sm">
-              <Plus />
-              Add Event
-            </Button>
-          </AddEventDialog>
+          <Button size="sm" onClick={() => openEventDialog()}>
+            <Plus />
+            Add Event
+          </Button>
         </div>
       </div>
     </div>

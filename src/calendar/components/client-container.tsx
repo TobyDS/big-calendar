@@ -9,6 +9,7 @@ import { CalendarMonthView } from "@/calendar/components/month-view/calendar-mon
 import { CalendarDayView } from "@/calendar/components/week-and-day-view/calendar-day-view";
 import { CalendarWeekView } from "@/calendar/components/week-and-day-view/calendar-week-view";
 import type { TCalendarView } from "@/calendar/types";
+import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 
 interface IProps {
   view: TCalendarView;
@@ -43,6 +44,7 @@ export function ClientContainer({ view }: IProps) {
       {view === "month" && <CalendarMonthView singleDayEvents={singleDayEvents} />}
       {view === "week" && <CalendarWeekView singleDayEvents={singleDayEvents} />}
       {view === "day" && <CalendarDayView singleDayEvents={singleDayEvents} />}
+      <AddEventDialog>{null}</AddEventDialog>
     </div>
   );
 }

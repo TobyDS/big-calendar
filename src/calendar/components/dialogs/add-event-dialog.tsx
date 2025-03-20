@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import type { TimeValue } from "react-aria-components";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { Form } from "@/components/ui/form";
@@ -15,34 +16,44 @@ import { TimeInput } from "@/components/ui/time-input";
 import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 
 import { eventSchema, type TEventFormData } from "@/calendar/schemas";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 interface IProps {
   children: React.ReactNode;
-  startDate?: Date;
-  startTime?: { hour: number; minute: number };
 }
 
-export function AddEventDialog({ children, startDate, startTime }: IProps) {
-  const { isOpen, onClose, onToggle } = useDisclosure();
+export function AddEventDialog({ children }: IProps) {
+  const { eventDialog, closeEventDialog } = useCalendar();
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
       description: "",
-      startDate: typeof startDate !== "undefined" ? startDate : undefined,
-      startTime: typeof startTime !== "undefined" ? startTime : undefined,
+      startDate: undefined,
+      startTime: undefined,
     },
   });
 
+  useEffect(() => {
+    if (eventDialog.isOpen) {
+      form.reset({
+        title: "",
+        description: "",
+        startDate: eventDialog.startDate,
+        startTime: eventDialog.startTime,
+      });
+    }
+  }, [eventDialog.isOpen, eventDialog.startDate, eventDialog.startTime, form]);
+
   const onSubmit = (_values: TEventFormData) => {
     // This is just and example of how to use the form. In a real application, you would call the API to create the event.
-    onClose();
+    closeEventDialog();
     form.reset();
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onToggle}>
+    <Dialog.Root open={eventDialog.isOpen} onOpenChange={open => !open && closeEventDialog()}>
       <Dialog.Trigger asChild>{children}</Dialog.Trigger>
 
       <Dialog.Content>

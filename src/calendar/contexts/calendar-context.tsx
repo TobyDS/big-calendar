@@ -16,6 +16,13 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   users?: U[];
   events: T[];
   hasUsers: boolean;
+  eventDialog: {
+    isOpen: boolean;
+    startDate?: Date;
+    startTime?: { hour: number; minute: number };
+  };
+  openEventDialog: (startDate?: Date, startTime?: { hour: number; minute: number }) => void;
+  closeEventDialog: () => void;
 }
 
 const CalendarContext = createContext<ICalendarContext<any, any>>({} as ICalendarContext<any, any>);
@@ -36,10 +43,31 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
   const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<U["id"] | "all" | null>(users ? "all" : null);
+  const [eventDialog, setEventDialog] = useState<{
+    isOpen: boolean;
+    startDate?: Date;
+    startTime?: { hour: number; minute: number };
+  }>({
+    isOpen: false
+  });
 
   const handleSelectDate = (date: Date | undefined) => {
     if (!date) return;
     setSelectedDate(date);
+  };
+
+  const openEventDialog = (startDate?: Date, startTime?: { hour: number; minute: number }) => {
+    setEventDialog({
+      isOpen: true,
+      startDate,
+      startTime
+    });
+  };
+
+  const closeEventDialog = () => {
+    setEventDialog({
+      isOpen: false
+    });
   };
 
   return (
@@ -54,7 +82,10 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         weekStartsOn: WeekStartDay[weekStartsOn],
         users, 
         events,
-        hasUsers: !!users?.length
+        hasUsers: !!users?.length,
+        eventDialog,
+        openEventDialog,
+        closeEventDialog
       }}
     >
       {children}

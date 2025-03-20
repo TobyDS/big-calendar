@@ -15,7 +15,7 @@ interface IProps {
 }
 
 export function CalendarWeekView({ singleDayEvents }: IProps) {
-  const { selectedDate, weekStartsOn } = useCalendar();
+  const { selectedDate, weekStartsOn, openEventDialog } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn });
   const weekDays = Array.from({ length: DAYS_IN_WEEK }, (_, i) => addDays(weekStart, i));
@@ -69,15 +69,17 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                       {hours.map((hour, index) => (
                         <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                           {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
-                          <AddEventDialog startDate={day} startTime={{ hour, minute: 0 }}>
-                            <div className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover" />
-                          </AddEventDialog>
+                          <div 
+                            className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
+                            onClick={() => openEventDialog(day, { hour, minute: 0 })}
+                          />
 
                           <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed border-b-tertiary"></div>
 
-                          <AddEventDialog startDate={day} startTime={{ hour, minute: 30 }}>
-                            <div className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover" />
-                          </AddEventDialog>
+                          <div 
+                            className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
+                            onClick={() => openEventDialog(day, { hour, minute: 30 })}
+                          />
                         </div>
                       ))}
 

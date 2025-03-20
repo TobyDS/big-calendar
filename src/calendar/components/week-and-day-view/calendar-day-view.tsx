@@ -15,7 +15,7 @@ interface IProps {
 }
 
 export function CalendarDayView({ singleDayEvents }: IProps) {
-  const { selectedDate, setSelectedDate, users, weekStartsOn, hasUsers } = useCalendar();
+  const { selectedDate, setSelectedDate, users, weekStartsOn, hasUsers, openEventDialog } = useCalendar();
 
   const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
 
@@ -78,15 +78,17 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
                   <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                     {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
 
-                    <AddEventDialog startDate={selectedDate} startTime={{ hour, minute: 0 }}>
-                      <div className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover" />
-                    </AddEventDialog>
+                    <div 
+                      className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
+                      onClick={() => openEventDialog(new Date(selectedDate), { hour, minute: 0 })}
+                    />
 
                     <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed border-b-tertiary"></div>
 
-                    <AddEventDialog startDate={selectedDate} startTime={{ hour, minute: 30 }}>
-                      <div className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover" />
-                    </AddEventDialog>
+                    <div 
+                      className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
+                      onClick={() => openEventDialog(new Date(selectedDate), { hour, minute: 30 })}
+                    />
                   </div>
                 ))}
 
