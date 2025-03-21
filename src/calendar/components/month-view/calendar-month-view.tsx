@@ -8,11 +8,12 @@ import type { IEvent } from "@/calendar/interfaces";
 
 interface IProps {
   singleDayEvents: IEvent[];
+  isLoading?: boolean;
 }
 
 const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export function CalendarMonthView({ singleDayEvents }: IProps) {
+export function CalendarMonthView({ singleDayEvents, isLoading = false }: IProps) {
   const { selectedDate, weekStartsOn } = useCalendar();
 
   const weekDays = useMemo(() => {
@@ -55,7 +56,7 @@ export function CalendarMonthView({ singleDayEvents }: IProps) {
                 !isFirstColumn && "border-l"
               )}
             >
-              <DayCell cell={cell} events={allEvents} eventPositions={eventPositions} />
+              <DayCell cell={cell} events={allEvents} eventPositions={eventPositions} isLoading={isLoading} />
             </div>
           );
         })}

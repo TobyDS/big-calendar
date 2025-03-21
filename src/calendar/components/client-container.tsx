@@ -82,17 +82,10 @@ export function ClientContainer({ view }: IProps) {
   return (
     <div className="rounded-xl border">
       <CalendarHeader view={currentView} events={filteredEvents} />
-      {isLoading ? (
-        <div className="flex items-center justify-center p-12">
-          <div className="animate-pulse text-lg">Loading events...</div>
-        </div>
-      ) : (
-        <>
-          {currentView === "month" && <CalendarMonthView singleDayEvents={singleDayEvents} />}
-          {currentView === "week" && <CalendarWeekView singleDayEvents={singleDayEvents} />}
-          {currentView === "day" && <CalendarDayView singleDayEvents={singleDayEvents} />}
-        </>
-      )}
+      {/* Always render the calendar views to prevent layout shifts */}
+      {currentView === "month" && <CalendarMonthView singleDayEvents={singleDayEvents} isLoading={isLoading} />}
+      {currentView === "week" && <CalendarWeekView singleDayEvents={singleDayEvents} isLoading={isLoading} />}
+      {currentView === "day" && <CalendarDayView singleDayEvents={singleDayEvents} isLoading={isLoading} />}
       <AddEventDialog />
       <EventDetailsDialog />
     </div>

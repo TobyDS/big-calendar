@@ -4,6 +4,7 @@ import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
+import { DayEventSkeleton } from "@/calendar/components/skeleton-loader";
 
 import { groupEvents, getEventBlockStyle } from "@/calendar/helpers";
 
@@ -11,15 +12,53 @@ import type { IEvent } from "@/calendar/interfaces";
 
 interface IProps {
   singleDayEvents: IEvent[];
+  isLoading?: boolean;
 }
 
-export function CalendarWeekView({ singleDayEvents }: IProps) {
+export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps) {
   const { selectedDate, weekStartsOn, openEventDialog, dayBoundaries } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn });
   const weekDays = Array.from({ length: DAYS_IN_WEEK }, (_, i) => addDays(weekStart, i));
   const hours = getDisplayHours(dayBoundaries);
   const calendarHeight = getCalendarHeight(dayBoundaries);
+
+  // Generate deterministic skeleton placeholder events for loading state
+  const getSkeletonEvents = (dayIndex: number) => {
+    if (!isLoading) return null;
+    
+    // Use deterministic counts based on day index
+    const skeletonConfig = [
+      { count: 1, startHour: 9, duration: 1 },  // Sunday
+      { count: 1, startHour: 11, duration: 2 }, // Monday
+      { count: 1, startHour: 13, duration: 1 }, // Tuesday
+      { count: 1, startHour: 10, duration: 2 }, // Wednesday
+      { count: 1, startHour: 14, duration: 1 }, // Thursday
+      { count: 1, startHour: 15, duration: 1 }, // Friday
+      { count: 1, startHour: 12, duration: 2 }, // Saturday
+    ];
+    
+    const config = skeletonConfig[dayIndex % 7];
+    
+    return Array.from({ length: config.count }).map((_, index) => {
+      // Use deterministic values based on day and index
+      const startHour = config.startHour + (index * 2);
+      const duration = config.duration;
+      
+      const style = {
+        left: `${0}%`,
+        width: `${100}%`,
+        top: `${(startHour - dayBoundaries!.startHour) * CELL_HEIGHT_PX}px`,
+        height: `${duration * CELL_HEIGHT_PX}px`,
+      };
+      
+      return (
+        <div key={`skeleton-${dayIndex}-${index}`} className="pointer-events-auto absolute p-1" style={style}>
+          <DayEventSkeleton />
+        </div>
+      );
+    });
+  };
 
   return (
     <>
@@ -84,21 +123,26 @@ export function CalendarWeekView({ singleDayEvents }: IProps) {
                       ))}
 
                       <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
-                        {groupedEvents.map(group =>
-                          group.events.map(({ event, column }) => {
-                            const style = getEventBlockStyle(
-                              event,
-                              column,
-                              dayBoundaries,
-                              group.totalColumns
-                            );
-                            
-                            return (
-                              <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
-                                <EventBlock event={event} />
-                              </div>
-                            );
-                          })
+                        {/* Show skeleton loaders when loading */}
+                        {isLoading ? (
+                          getSkeletonEvents(dayIndex)
+                        ) : (
+                          groupedEvents.map(group =>
+                            group.events.map(({ event, column }) => {
+                              const style = getEventBlockStyle(
+                                event,
+                                column,
+                                dayBoundaries,
+                                group.totalColumns
+                              );
+                              
+                              return (
+                                <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
+                                  <EventBlock event={event} />
+                                </div>
+                              );
+                            })
+                          )
                         )}
                       </div>
                     </div>

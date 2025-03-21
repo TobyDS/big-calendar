@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { DayEventSkeleton, Skeleton } from "@/calendar/components/skeleton-loader";
 import { 
   CELL_HEIGHT_PX, 
   getDisplayHours, 
@@ -18,6 +19,7 @@ import type { IEvent } from "@/calendar/interfaces";
 
 interface IProps {
   singleDayEvents: IEvent[];
+  isLoading?: boolean;
 }
 
 function isEventInProgress(event: IEvent): boolean {
@@ -28,7 +30,7 @@ function isEventInProgress(event: IEvent): boolean {
   });
 }
 
-export function CalendarDayView({ singleDayEvents }: IProps) {
+export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) {
   const { selectedDate, setSelectedDate, users, weekStartsOn, hasUsers, openEventDialog, dayBoundaries } = useCalendar();
 
   const hours = useMemo(() => getDisplayHours(dayBoundaries), [dayBoundaries]);
@@ -51,6 +53,33 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
     () => dayEvents.filter(event => isEventInProgress(event)),
     [dayEvents]
   );
+  
+  // Generate deterministic skeleton placeholder events for loading state
+  const getSkeletonEvents = () => {
+    if (!isLoading) return null;
+    
+    // Fixed skeleton configuration - simplified to just 3 events
+    const skeletonEvents = [
+      { startHour: 9, duration: 2 },
+      { startHour: 13, duration: 1 },
+      { startHour: 15, duration: 2 }
+    ];
+    
+    return skeletonEvents.map((config, index) => {
+      const style = {
+        left: `${0}%`,
+        width: `${100}%`,
+        top: `${(config.startHour - dayBoundaries!.startHour) * CELL_HEIGHT_PX}px`,
+        height: `${config.duration * CELL_HEIGHT_PX}px`,
+      };
+      
+      return (
+        <div key={`skeleton-${index}`} className="pointer-events-auto absolute p-1" style={style}>
+          <DayEventSkeleton />
+        </div>
+      );
+    });
+  };
 
   return (
     <div className="flex h-full">
@@ -91,21 +120,25 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
 
                 {/* Events */}
                 <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
-                  {groupedEvents.map(group =>
-                    group.events.map(({ event, column }) => {
-                      const style = getEventBlockStyle(
-                        event,
-                        column,
-                        dayBoundaries,
-                        group.totalColumns
-                      );
-                      
-                      return (
-                        <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
-                          <EventBlock event={event} />
-                        </div>
-                      );
-                    })
+                  {isLoading ? (
+                    getSkeletonEvents()
+                  ) : (
+                    groupedEvents.map(group =>
+                      group.events.map(({ event, column }) => {
+                        const style = getEventBlockStyle(
+                          event,
+                          column,
+                          dayBoundaries,
+                          group.totalColumns
+                        );
+                        
+                        return (
+                          <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
+                            <EventBlock event={event} />
+                          </div>
+                        );
+                      })
+                    )
                   )}
                 </div>
               </div>
@@ -128,7 +161,23 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
         />
 
         <div className="flex-1 space-y-3">
-          {currentEvents.length > 0 ? (
+          {isLoading ? (
+            <div className="p-4 space-y-4">
+              <Skeleton className="h-6 w-48 mb-4" />
+              <div className="space-y-5">
+                <div className="space-y-3">
+                  <Skeleton className="h-5 w-full max-w-40" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+                <div className="space-y-3">
+                  <Skeleton className="h-5 w-full max-w-36" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-40" />
+                </div>
+              </div>
+            </div>
+          ) : currentEvents.length > 0 ? (
             <div className="flex items-start gap-2 px-4 pt-4">
               <span className="relative mt-[5px] flex size-2.5">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-success-400 opacity-75"></span>
@@ -141,7 +190,7 @@ export function CalendarDayView({ singleDayEvents }: IProps) {
             <p className="p-4 text-center text-sm italic text-t-tertiary">No appointments or consultations at the moment</p>
           )}
 
-          {currentEvents.length > 0 && (
+          {!isLoading && currentEvents.length > 0 && (
             <ScrollArea className="h-[422px] px-4" type="always">
               <div className="space-y-6 pb-4">
                 {currentEvents.map(event => {
