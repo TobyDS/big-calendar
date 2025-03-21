@@ -11,6 +11,7 @@ import { Header } from "@/components/layout/header";
 import { getTheme } from "@/cookies/get";
 
 import type { Metadata, Viewport } from "next";
+import { Providers } from "@/providers";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -30,9 +31,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-US" className={cn(inter.variable, lexend.variable, manrope.variable, "bg-bg-primary text-t-primary", theme)}>
       <body>
+        <Providers>
         <Header />
         <Analytics />
         {children}
+        </Providers>
       </body>
     </html>
   );
