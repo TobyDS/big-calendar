@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 
 import type { IBaseEvent, IDefaultEvent, IBaseUser, IDefaultUser } from "@/calendar/interfaces";
-import { WeekStartDay, type WeekStartNumber } from "@/calendar/types";
+import { WeekStartDay, type WeekStartNumber, type TCalendarView } from "@/calendar/types";
 
 interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser> {
   selectedDate: Date;
@@ -19,6 +19,9 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   };
   users?: U[];
   events: T[];
+  isLoadingEvents: boolean;
+  currentView: TCalendarView;
+  setCurrentView: (view: TCalendarView) => void;
   hasUsers: boolean;
   eventDialog: {
     isOpen: boolean;
@@ -38,10 +41,10 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CalendarContext = createContext<ICalendarContext<any, any>>({} as ICalendarContext<any, any>);
 
-interface CalendarProviderProps<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser> {
+interface CalendarProviderProps<U extends IBaseUser = IDefaultUser> {
   children: React.ReactNode;
   users?: U[];
-  events: T[];
+  initialView?: TCalendarView;
   weekStartsOn?: WeekStartDay;
   dayBoundaries?: {
     startHour: number;
@@ -52,13 +55,14 @@ interface CalendarProviderProps<T extends IBaseEvent = IDefaultEvent, U extends 
 export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser>({ 
   children, 
   users, 
-  events, 
+  initialView = "month",
   weekStartsOn = "Sunday",
   dayBoundaries
-}: CalendarProviderProps<T, U>) {
+}: CalendarProviderProps<U>) {
   const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<U["id"] | "all" | null>(users ? "all" : null);
+  const [currentView, setCurrentView] = useState<TCalendarView>(initialView);
   const [eventDialog, setEventDialog] = useState<{
     isOpen: boolean;
     startDate?: Date;
@@ -72,6 +76,10 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
   }>({
     isOpen: false
   });
+
+  // We're using empty array initially - actual events are now loaded in the ClientContainer
+  const events: T[] = [];
+  const isLoadingEvents = false;
 
   const handleSelectDate = (date: Date | undefined) => {
     if (!date) return;
@@ -118,6 +126,9 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         dayBoundaries,
         users, 
         events,
+        isLoadingEvents,
+        currentView,
+        setCurrentView,
         hasUsers: !!users?.length,
         eventDialog,
         openEventDialog,
