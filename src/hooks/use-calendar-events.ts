@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay, addMonths, addWeeks, addDays } from "date-fns";
+import { startOfMonth, endOfMonth, addMonths } from "date-fns";
 import { useMemo, useCallback } from "react";
 
 import { getEvents } from "@/calendar/requests";
@@ -17,47 +17,28 @@ interface UseCalendarEventsParams {
 // See: https://tanstack.com/query/latest/docs/react/guides/query-keys
 const eventsKeys = {
   all: ["events"] as const,
-  dateRange: (view: TCalendarView, dateRangeStart: number, dateRangeEnd: number) => 
-    [...eventsKeys.all, view, dateRangeStart, dateRangeEnd] as const,
+  month: (dateRangeStart: number, dateRangeEnd: number) => 
+    [...eventsKeys.all, "month", dateRangeStart, dateRangeEnd] as const,
 };
 
 export function useCalendarEvents({ selectedDate, view, selectedUserId, hasUsers }: UseCalendarEventsParams) {
   const queryClient = useQueryClient();
   
-  // Calculate date range based on view and date
+  // Always use month range for data fetching regardless of view
   const dateRange = useMemo(() => {
-    switch (view) {
-      case "month":
-        return {
-          start: startOfMonth(selectedDate),
-          end: endOfMonth(selectedDate)
-        };
-      case "week":
-        return {
-          start: startOfWeek(selectedDate),
-          end: endOfWeek(selectedDate)
-        };
-      case "day":
-        return {
-          start: startOfDay(selectedDate),
-          end: endOfDay(selectedDate)
-        };
-      default:
-        return {
-          start: startOfMonth(selectedDate),
-          end: endOfMonth(selectedDate)
-        };
-    }
-  }, [selectedDate, view]);
+    return {
+      start: startOfMonth(selectedDate),
+      end: endOfMonth(selectedDate)
+    };
+  }, [selectedDate]);
   
   // Generate query key in a stable way
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryKey = useMemo(() => 
-    eventsKeys.dateRange(view, dateRange.start.getTime(), dateRange.end.getTime()), 
-    [view, dateRange]
+    eventsKeys.month(dateRange.start.getTime(), dateRange.end.getTime()), 
+    [dateRange]
   );
   
-  // Fetch events for the current date range
+  // Fetch events for the current month
   const { data: events = [], isLoading, isError } = useQuery({
     queryKey,
     queryFn: () => getEvents(dateRange.start, dateRange.end),
@@ -72,43 +53,28 @@ export function useCalendarEvents({ selectedDate, view, selectedUserId, hasUsers
     });
   }, [events, hasUsers, selectedUserId]);
 
-  // Pre-fetch adjacent periods
+  // Pre-fetch adjacent months
   const prefetchAdjacent = useCallback(() => {
-    // Calculate adjacent dates
-    const nextDate = 
-      view === "month" ? addMonths(selectedDate, 1) : 
-      view === "week" ? addWeeks(selectedDate, 1) : 
-      addDays(selectedDate, 1);
-      
-    const prevDate = 
-      view === "month" ? addMonths(selectedDate, -1) : 
-      view === "week" ? addWeeks(selectedDate, -1) : 
-      addDays(selectedDate, -1);
+    // Calculate adjacent months
+    const nextMonth = addMonths(selectedDate, 1);
+    const prevMonth = addMonths(selectedDate, -1);
     
-    // Calculate ranges for adjacent periods
+    // Calculate ranges for adjacent months
     const nextRange = {
-      start: view === "month" ? startOfMonth(nextDate) : 
-             view === "week" ? startOfWeek(nextDate) : 
-             startOfDay(nextDate),
-      end: view === "month" ? endOfMonth(nextDate) : 
-           view === "week" ? endOfWeek(nextDate) : 
-           endOfDay(nextDate)
+      start: startOfMonth(nextMonth),
+      end: endOfMonth(nextMonth)
     };
     
     const prevRange = {
-      start: view === "month" ? startOfMonth(prevDate) : 
-             view === "week" ? startOfWeek(prevDate) : 
-             startOfDay(prevDate),
-      end: view === "month" ? endOfMonth(prevDate) : 
-           view === "week" ? endOfWeek(prevDate) : 
-           endOfDay(prevDate)
+      start: startOfMonth(prevMonth),
+      end: endOfMonth(prevMonth)
     };
     
-    // Generate query keys for adjacent periods
-    const nextQueryKey = eventsKeys.dateRange(view, nextRange.start.getTime(), nextRange.end.getTime());
-    const prevQueryKey = eventsKeys.dateRange(view, prevRange.start.getTime(), prevRange.end.getTime());
+    // Generate query keys for adjacent months
+    const nextQueryKey = eventsKeys.month(nextRange.start.getTime(), nextRange.end.getTime());
+    const prevQueryKey = eventsKeys.month(prevRange.start.getTime(), prevRange.end.getTime());
     
-    // Prefetch the adjacent periods
+    // Prefetch the adjacent months
     queryClient.prefetchQuery({
       queryKey: nextQueryKey,
       queryFn: () => getEvents(nextRange.start, nextRange.end),
@@ -120,7 +86,7 @@ export function useCalendarEvents({ selectedDate, view, selectedUserId, hasUsers
       queryFn: () => getEvents(prevRange.start, prevRange.end),
       staleTime: 5 * 60 * 1000,
     });
-  }, [queryClient, selectedDate, view]);
+  }, [queryClient, selectedDate]);
 
   return {
     events: filteredEvents,

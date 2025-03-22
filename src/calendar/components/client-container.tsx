@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { isSameDay, parseISO, startOfMonth, endOfMonth } from "date-fns";
+import { isSameDay, parseISO } from "date-fns";
 import { usePathname } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { CalendarHeader } from "@/calendar/components/header/calendar-header";
@@ -14,7 +13,6 @@ import type { TCalendarView } from "@/calendar/types";
 import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
 import { EventDetailsDialog } from "@/calendar/components/dialogs/event-details-dialog";
 import { useCalendarEvents } from "@/hooks/use-calendar-events";
-import { getEvents } from "@/calendar/requests";
 
 interface IProps {
   view: TCalendarView;
@@ -23,7 +21,6 @@ interface IProps {
 export function ClientContainer({ view }: IProps) {
   const pathname = usePathname();
   const { selectedDate, selectedUserId, hasUsers, setCurrentView } = useCalendar();
-  const queryClient = useQueryClient();
   
   // Determine current view from props or pathname as backup
   const currentView = view || (pathname?.includes("/day-view") 
@@ -37,7 +34,7 @@ export function ClientContainer({ view }: IProps) {
     setCurrentView(currentView);
   }, [currentView, setCurrentView]);
   
-  // Use our hook to fetch events dynamically
+  // Use our hook to fetch events dynamically - now always fetches month data
   const { events: filteredEvents, isLoading, prefetchAdjacent } = useCalendarEvents({
     selectedDate,
     view: currentView,
@@ -45,30 +42,10 @@ export function ClientContainer({ view }: IProps) {
     hasUsers
   });
 
-  // Always prefetch month data on initial load
+  // When selected date changes, prefetch events for adjacent months
   useEffect(() => {
-    const prefetchMonthData = async () => {
-      const monthStart = startOfMonth(selectedDate);
-      const monthEnd = endOfMonth(selectedDate);
-      
-      // Only prefetch if we're not already in month view
-      if (currentView !== "month") {
-        await queryClient.prefetchQuery({
-          queryKey: ["events", "month", monthStart.getTime(), monthEnd.getTime()],
-          queryFn: () => getEvents(monthStart, monthEnd),
-          staleTime: 5 * 60 * 1000,
-        });
-      }
-    };
-    
-    prefetchMonthData();
-  }, [selectedDate, currentView, queryClient]);
-
-  // When selected date changes, prefetch events for adjacent periods
-  useEffect(() => {
-    // Prefetch adjacent periods when the component mounts or when date/view changes
     prefetchAdjacent();
-  }, [selectedDate, currentView]); // Removed prefetchAdjacent from dependencies to avoid re-runs
+  }, [selectedDate, prefetchAdjacent]);
   
   // Filter events to get single day events
   const singleDayEvents = useMemo(() => {
