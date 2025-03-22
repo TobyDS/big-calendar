@@ -11,7 +11,7 @@ interface MonthSkeletonEvent {
 }
 
 // Define base events with natural overlaps for week/day view
-export const SKELETON_WEEK_EVENTS: SkeletonEvent[][] = [
+const SKELETON_WEEK_EVENTS: SkeletonEvent[][] = [
   // Monday - Busy morning with natural overlaps
   [
     { startHour: 9, duration: 2 },    // 9:00-11:00

@@ -5,7 +5,7 @@ import { USERS_MOCK } from "@/calendar/mocks";
 const MOCK_DELAY_MS = 300;
 
 // Use the same mock users as defined in mocks.ts
-export const mockUsers: IDefaultUser[] = USERS_MOCK;
+const mockUsers: IDefaultUser[] = USERS_MOCK;
 
 /**
  * Mock implementation of getUsers

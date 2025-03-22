@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { isSameDay, parseISO } from "date-fns";
+import { isSameDay, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { usePathname } from "next/navigation";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
@@ -20,7 +20,7 @@ interface IProps {
 
 export function ClientContainer({ view }: IProps) {
   const pathname = usePathname();
-  const { selectedDate, selectedUserId, hasUsers, setCurrentView } = useCalendar();
+  const { selectedDate, selectedUserId, hasUsers, setCurrentView, weekStartsOn } = useCalendar();
   
   // Determine current view from props or pathname as backup
   const currentView = view || (pathname?.includes("/day-view") 
@@ -34,12 +34,38 @@ export function ClientContainer({ view }: IProps) {
     setCurrentView(currentView);
   }, [currentView, setCurrentView]);
   
-  // Use our hook to fetch events dynamically - now always fetches month data
+  // Calculate visible date range based on view
+  const { visibleStart, visibleEnd } = useMemo(() => {
+    if (currentView === 'week') {
+      return {
+        visibleStart: startOfWeek(selectedDate, { weekStartsOn }),
+        visibleEnd: endOfWeek(selectedDate, { weekStartsOn })
+      };
+    } else if (currentView === 'day') {
+      // For day view, the visible range is just the selected day
+      const dayStart = new Date(selectedDate);
+      dayStart.setHours(0, 0, 0, 0);
+      
+      const dayEnd = new Date(selectedDate);
+      dayEnd.setHours(23, 59, 59, 999);
+      
+      return { visibleStart: dayStart, visibleEnd: dayEnd };
+    } else {
+      // For month view
+      return {
+        visibleStart: startOfMonth(selectedDate),
+        visibleEnd: endOfMonth(selectedDate)
+      };
+    }
+  }, [selectedDate, currentView, weekStartsOn]);
+  
+  // Use our hook to fetch events dynamically with the calculated visible range
   const { events: filteredEvents, isLoading, prefetchAdjacent } = useCalendarEvents({
     selectedDate,
-    view: currentView,
     selectedUserId,
-    hasUsers
+    hasUsers,
+    visibleStart,
+    visibleEnd
   });
 
   // When selected date changes, prefetch events for adjacent months

@@ -11,7 +11,7 @@ const titles = [
 ];
 
 // Generate random events within a date range
-export function generateMockEvents(
+function generateMockEvents(
   startDate: Date,
   endDate: Date,
   count: number = 20

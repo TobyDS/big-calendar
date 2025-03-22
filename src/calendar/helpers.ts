@@ -30,38 +30,18 @@ export const DAYS_IN_WEEK = 7;
 /** Maximum number of events that can be stacked in the month view */
 export const MAX_EVENT_STACK = 3;
 
-/** Number of hours in a day */
-export const HOURS_IN_DAY = 24;
 
 /** Number of minutes in an hour */
 export const MINUTES_IN_HOUR = 60;
 
-/** Total number of minutes in a day */
-export const MINUTES_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR;
-
 /** Height of a single time cell in pixels */
 export const CELL_HEIGHT_PX = 96;
-
-/** Half the height of a time cell in pixels */
-export const HALF_CELL_HEIGHT_PX = CELL_HEIGHT_PX / 2;
-
-/** Width of the time column in rem units */
-export const TIME_COLUMN_WIDTH_REM = 18;
 
 /** Duration threshold in minutes below which events switch to a compact layout */
 export const COMPACT_EVENT_THRESHOLD_MINUTES = 35;
 
 /** Minimum event duration in minutes required to display the event time */
 export const MIN_DURATION_FOR_TIME_DISPLAY = 25;
-
-/** Interval in milliseconds for updating the current time indicator */
-export const UPDATE_INTERVAL_MS = 60 * 1000;
-
-/** Height of the day view scroll area in pixels */
-export const SCROLL_AREA_HEIGHT_DAY = 800;
-
-/** Height of the week view scroll area in pixels */
-export const SCROLL_AREA_HEIGHT_WEEK = 736;
 
 /** Vertical padding in pixels subtracted from event block height calculations */
 export const EVENT_VERTICAL_PADDING = 8;

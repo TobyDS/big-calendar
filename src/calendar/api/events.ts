@@ -4,54 +4,25 @@ import type { IDefaultEvent } from "@/calendar/interfaces";
 // Simulate network delay
 const MOCK_DELAY_MS = 300;
 
-// Define the response type from your API
-export interface EventsResponse {
-  events: IDefaultEvent[];
-}
-
-// Define the parameters for event fetching
-export interface FetchEventsParams {
-  startDate: string; // ISO string
-  endDate: string;   // ISO string
-  userId?: string;   // Optional user filter
-}
-
 /**
  * Mock implementation of fetchEvents that filters the in-memory store
  */
-export async function fetchEvents({
-  startDate,
-  endDate,
-  userId
-}: FetchEventsParams): Promise<EventsResponse> {
+export async function getEvents(startDate?: Date, endDate?: Date): Promise<IDefaultEvent[]> {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, MOCK_DELAY_MS));
   
-  // Parse dates for comparison
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  if (!startDate || !endDate) {
+    return mockEventStore;
+  }
   
-  // Filter events based on the date range and user
-  const filteredEvents = mockEventStore.filter(event => {
+  // Filter events that fall within the given date range
+  return mockEventStore.filter(event => {
     const eventStart = new Date(event.startDate);
     const eventEnd = new Date(event.endDate);
     
-    // Check date range overlap
-    const dateOverlap = eventStart <= end && eventEnd >= start;
-    
-    // Check user match if specified
-    const userMatch = !userId || userId === 'all' || 
-                      (event.user && event.user.id === userId);
-    
-    return dateOverlap && userMatch;
+    // Event starts before or during the range AND ends during or after the range
+    return (eventStart <= endDate && eventEnd >= startDate);
   });
-  
-  // Sort by start date
-  filteredEvents.sort((a, b) => 
-    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-  );
-  
-  return { events: filteredEvents };
 }
 
 /**
