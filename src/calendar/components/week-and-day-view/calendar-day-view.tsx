@@ -58,11 +58,12 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
   const getSkeletonEvents = () => {
     if (!isLoading) return null;
     
-    // Fixed skeleton configuration - simplified to just 3 events
+    // Fixed skeleton configuration
     const skeletonEvents = [
       { startHour: 9, duration: 2 },
-      { startHour: 13, duration: 1 },
-      { startHour: 15, duration: 2 }
+      { startHour: 12, duration: 1 },
+      { startHour: 14, duration: 2 },
+      { startHour: 16, duration: 1 }
     ];
     
     return skeletonEvents.map((config, index) => {
