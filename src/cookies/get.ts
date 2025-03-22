@@ -1,4 +1,4 @@
-import { cookies, type UnsafeUnwrappedCookies } from "next/headers";
+import { cookies } from "next/headers";
 
 import { THEMES_VALUES } from "@/utils/constants/theme.const";
 import { DEFAULT_VALUES } from "@/utils/constants/cookies.const";
@@ -6,9 +6,19 @@ import { THEME_COOKIE_NAME } from "@/utils/constants/cookies.const";
 
 export type TTheme = (typeof THEMES_VALUES)[number];
 
-export function getTheme(): TTheme {
-  const cookieStore = (cookies() as unknown as UnsafeUnwrappedCookies);
-  const theme = cookieStore.get(THEME_COOKIE_NAME)?.value;
-  if (!THEMES_VALUES.includes(theme as TTheme)) return DEFAULT_VALUES.theme as TTheme;
-  return theme as TTheme;
+export async function getTheme(): Promise<TTheme> {
+  try {
+    const cookieStore = await cookies();
+    const themeCookie = cookieStore.get(THEME_COOKIE_NAME);
+    const theme = themeCookie?.value;
+    
+    if (!theme || !THEMES_VALUES.includes(theme as TTheme)) {
+      return DEFAULT_VALUES.theme as TTheme;
+    }
+    
+    return theme as TTheme;
+  } catch (error) {
+    // If there's any error accessing cookies, return the default theme
+    return DEFAULT_VALUES.theme as TTheme;
+  }
 }

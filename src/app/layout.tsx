@@ -20,13 +20,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Big Calendar by lramos33",
+  title: "Big Calendar",
   description:
     "A feature-rich calendar application built with Next.js, TypeScript, and Tailwind CSS. This project provides a modern, responsive interface for managing events and schedules with multiple viewing options.",
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const theme = getTheme();
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const theme = await getTheme();
 
   return (
     <html lang="en-US" className={cn(inter.variable, lexend.variable, manrope.variable, "bg-bg-primary text-t-primary", theme)}>
