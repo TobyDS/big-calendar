@@ -16,9 +16,21 @@ import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 
 import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { useCreateEvent } from "@/hooks/use-calendar-mutations";
+import { useToast } from "@/hooks/use-toast";
 
 export function AddEventDialog() {
-  const { eventDialog, closeEventDialog } = useCalendar();
+  const { eventDialog, closeEventDialog, selectedUserId } = useCalendar();
+  const { toast } = useToast();
+  const { mutate: createEvent, isPending } = useCreateEvent({
+    onSuccess: () => {
+      toast({
+        title: "Event created successfully",
+      });
+      closeEventDialog();
+      form.reset();
+    },
+  });
 
   const form = useForm<TEventFormData>({
     resolver: zodResolver(eventSchema),
@@ -27,6 +39,9 @@ export function AddEventDialog() {
       description: "",
       startDate: undefined,
       startTime: undefined,
+      endDate: undefined,
+      endTime: undefined,
+      variant: undefined,
     },
   });
 
@@ -37,14 +52,21 @@ export function AddEventDialog() {
         description: "",
         startDate: eventDialog.startDate,
         startTime: eventDialog.startTime,
+        endDate: eventDialog.startDate, // Default end date to same as start date
+        endTime: eventDialog.startTime 
+          ? { hour: Math.min(eventDialog.startTime.hour + 1, 23), minute: eventDialog.startTime.minute }
+          : undefined,
+        variant: "blue",
       });
     }
   }, [eventDialog.isOpen, eventDialog.startDate, eventDialog.startTime, form]);
 
-  const onSubmit = (_values: TEventFormData) => {
-    // This is just and example of how to use the form. In a real application, you would call the API to create the event.
-    closeEventDialog();
-    form.reset();
+  const onSubmit = (values: TEventFormData) => {
+    const userId = selectedUserId !== "all" && selectedUserId !== null 
+      ? selectedUserId 
+      : undefined;
+      
+    createEvent({ ...values, userId });
   };
 
   return (
@@ -250,8 +272,8 @@ export function AddEventDialog() {
             </Button>
           </Dialog.Close>
 
-          <Button form="event-form" type="submit">
-            Create Event
+          <Button form="event-form" type="submit" disabled={isPending}>
+            {isPending ? "Creating..." : "Create Event"}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>
