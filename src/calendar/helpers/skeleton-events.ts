@@ -6,7 +6,11 @@ interface SkeletonEvent {
   duration: number;
 }
 
-// Define base events with natural overlaps
+interface MonthSkeletonEvent {
+  count: number;  // How many events to show in this cell
+}
+
+// Define base events with natural overlaps for week/day view
 export const SKELETON_WEEK_EVENTS: SkeletonEvent[][] = [
   // Monday - Busy morning with natural overlaps
   [
@@ -53,6 +57,40 @@ export const SKELETON_WEEK_EVENTS: SkeletonEvent[][] = [
     { startHour: 13.5, duration: 2 }, // 1:30-3:30
   ],
 ];
+
+// Define month view skeleton events pattern
+// Each number represents a day of the month (1-31)
+// The value is the configuration for that day
+export const SKELETON_MONTH_EVENTS: Record<number, MonthSkeletonEvent> = {
+  // Week 1: Light start
+  1: { count: 1 },
+  3: { count: 2 },
+  5: { count: 1 },
+  
+  // Week 2: Busy week
+  8: { count: 2 },
+  9: { count: 3 },
+  10: { count: 1 },
+  11: { count: 2 },
+  12: { count: 1 },
+  
+  // Week 3: Mid-month meetings
+  15: { count: 1 },
+  16: { count: 2 },
+  17: { count: 3 },
+  18: { count: 2 },
+  
+  // Week 4: Scattered events
+  22: { count: 1 },
+  23: { count: 2 },
+  25: { count: 1 },
+  
+  // Week 5: End of month wrap-up
+  28: { count: 2 },
+  29: { count: 1 },
+  30: { count: 1 },
+  31: { count: 2 }
+};
 
 export function createSkeletonEvents(dayIndex: number): IDefaultEvent[] {
   const dayEvents = SKELETON_WEEK_EVENTS[dayIndex % 7];

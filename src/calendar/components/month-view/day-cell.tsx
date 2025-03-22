@@ -6,6 +6,7 @@ import { EventBullet } from "@/calendar/components/month-view/event-bullet";
 import { MonthEventBadge } from "@/calendar/components/month-view/month-event-badge";
 import { MonthEventSkeleton } from "@/calendar/components/skeleton-loader";
 import { getMonthCellEvents } from "@/calendar/helpers";
+import { SKELETON_MONTH_EVENTS } from "@/calendar/helpers/skeleton-events";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
 
 interface IProps {
@@ -22,12 +23,14 @@ export function DayCell({ cell, events, eventPositions, isLoading = false }: IPr
 
   const cellEvents = useMemo(() => getMonthCellEvents(date, events, eventPositions), [date, events, eventPositions]);
 
-  // Use date as seed to make skeleton positions deterministic 
-  const shouldShowSkeleton = useMemo(() => {
-    if (!isLoading || !currentMonth) return false;
-    // Use the day number as deterministic value
-    return date.getDate() % 3 === 0;
+  // Get skeleton configuration for this day
+  const skeletonConfig = useMemo(() => {
+    if (!isLoading || !currentMonth) return null;
+    return SKELETON_MONTH_EVENTS[date.getDate()];
   }, [date, isLoading, currentMonth]);
+
+  // Calculate how many skeleton events to show
+  const skeletonCount = skeletonConfig?.count || 0;
 
   return (
     <div className="flex flex-col gap-1 py-1.5 lg:py-2">
@@ -49,13 +52,13 @@ export function DayCell({ cell, events, eventPositions, isLoading = false }: IPr
           return (
             <div key={eventKey} className="lg:flex-1">
               {isLoading ? (
-                // Show skeleton while loading
-                shouldShowSkeleton && position === 0 ? (
+                // Always show skeletons from top to bottom
+                position < skeletonCount && (
                   <>
                     <EventBullet className="lg:hidden opacity-50" color="blue" />
                     <MonthEventSkeleton className="hidden lg:flex" />
                   </>
-                ) : null
+                )
               ) : (
                 // Show actual event when loaded
                 event && (
