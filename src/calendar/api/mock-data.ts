@@ -24,13 +24,18 @@ export function generateMockEvents(
     const randomOffset = Math.random() * dateRange;
     const eventDate = new Date(startDate.getTime() + randomOffset);
     
-    // Set to business hours (8am-6pm)
-    const hour = 8 + Math.floor(Math.random() * 10);
+    // Set to business hours (8am-5pm)
+    const hour = 8 + Math.floor(Math.random() * 9);
     const minute = Math.floor(Math.random() * 4) * 15; // 0, 15, 30, or 45
     eventDate.setHours(hour, minute, 0, 0);
     
-    // Duration between 30 mins and 2 hours
-    const durationMinutes = [30, 45, 60, 90, 120][Math.floor(Math.random() * 5)];
+    // Calculate max possible duration to stay within business hours (5pm)
+    const minutesUntil5PM = (17 - hour) * 60 - minute;
+    const possibleDurations = [30, 45, 60, 90, 120].filter(d => d <= minutesUntil5PM);
+    const durationMinutes = possibleDurations.length > 0 
+      ? possibleDurations[Math.floor(Math.random() * possibleDurations.length)]
+      : minutesUntil5PM;
+    
     const endDateTime = new Date(eventDate);
     endDateTime.setMinutes(endDateTime.getMinutes() + durationMinutes);
     
@@ -54,9 +59,9 @@ export function generateMockEvents(
 
 // In-memory store for persistent mock data
 const mockEventStore: IDefaultEvent[] = generateMockEvents(
-  subDays(new Date(), 60), // 60 days in the past
-  addDays(new Date(), 60),  // 60 days in the future
-  100 // 100 initial events
+  new Date(new Date().getFullYear(), 0, 1),
+  new Date(new Date().getFullYear(), 11, 31),
+  1500 
 );
 
 // Export the store for mock API operations

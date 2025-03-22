@@ -1,4 +1,5 @@
-import { CALENDAR_ITEMS_MOCK, USERS_MOCK } from "@/calendar/mocks";
+import { USERS_MOCK } from "@/calendar/mocks";
+import { mockEventStore } from "@/calendar/api/mock-data";
 
 const DELAY_MS = 1500;
 
@@ -7,11 +8,11 @@ export const getEvents = async (startDate?: Date, endDate?: Date) => {
   await new Promise(resolve => setTimeout(resolve, DELAY_MS));
   
   if (!startDate || !endDate) {
-    return CALENDAR_ITEMS_MOCK;
+    return mockEventStore;
   }
   
   // Filter events that fall within the given date range
-  return CALENDAR_ITEMS_MOCK.filter(event => {
+  return mockEventStore.filter(event => {
     const eventStart = new Date(event.startDate);
     const eventEnd = new Date(event.endDate);
     
