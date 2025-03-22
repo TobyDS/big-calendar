@@ -18,6 +18,7 @@ import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useUpdateEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
 import type { IEvent } from "@/calendar/interfaces";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 interface EditEventFormProps {
   event: IEvent;
@@ -27,6 +28,7 @@ interface EditEventFormProps {
 
 export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEventFormProps) {
   const { toast } = useToast();
+  const { users, selectedUserId } = useCalendar();
   const { mutate: updateEvent, isPending } = useUpdateEvent({
     onSuccess: () => {
       toast({
@@ -36,7 +38,7 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
     },
   });
 
-  const form = useForm<TEventFormData>({
+  const form = useForm<TEventFormData & { userId?: string }>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
@@ -46,6 +48,7 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
       endDate: undefined,
       endTime: undefined,
       variant: undefined,
+      userId: undefined,
     },
   });
 
@@ -68,16 +71,14 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
         minute: getMinutes(endDate),
       },
       variant: event.color,
+      userId: event.user?.id,
     });
   }, [event, form]);
 
-  const onSubmit = (values: TEventFormData) => {
-    const userId = event.user?.id;
-    
+  const onSubmit = (values: TEventFormData & { userId?: string }) => {
     updateEvent({ 
       ...values, 
       id: typeof event.id === 'string' ? event.id : String(event.id),
-      userId 
     });
   };
 
@@ -178,6 +179,37 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
             )}
           />
         </div>
+        
+        {users && users.length > 0 && (
+          <Form.Field
+            control={form.control}
+            name="userId"
+            render={({ field, fieldState }) => (
+              <Form.Item>
+                <Form.Label>Assign to User</Form.Label>
+                <Form.Control>
+                  <Select.Root value={field.value} onValueChange={field.onChange}>
+                    <Select.Trigger data-invalid={fieldState.invalid}>
+                      <Select.Value placeholder="Select a user (optional)" />
+                    </Select.Trigger>
+
+                    <Select.Content>
+                      <Select.Item value="none">
+                        <span>None</span>
+                      </Select.Item>
+                      {users.map((user) => (
+                        <Select.Item key={user.id} value={user.id}>
+                          {user.name}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+        )}
 
         <Form.Field
           control={form.control}

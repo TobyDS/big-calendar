@@ -20,8 +20,9 @@ import { useCreateEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
 
 export function AddEventDialog() {
-  const { eventDialog, closeEventDialog, selectedUserId } = useCalendar();
+  const { eventDialog, closeEventDialog, selectedUserId, users } = useCalendar();
   const { toast } = useToast();
+  
   const { mutate: createEvent, isPending } = useCreateEvent({
     onSuccess: () => {
       toast({
@@ -32,7 +33,7 @@ export function AddEventDialog() {
     },
   });
 
-  const form = useForm<TEventFormData>({
+  const form = useForm<TEventFormData & { userId?: string }>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
@@ -42,11 +43,18 @@ export function AddEventDialog() {
       endDate: undefined,
       endTime: undefined,
       variant: undefined,
+      userId: selectedUserId !== "all" && selectedUserId !== null 
+        ? selectedUserId 
+        : undefined,
     },
   });
 
   useEffect(() => {
     if (eventDialog.isOpen) {
+      const defaultUserId = selectedUserId !== "all" && selectedUserId !== null 
+        ? selectedUserId 
+        : undefined;
+        
       form.reset({
         title: "",
         description: "",
@@ -57,16 +65,13 @@ export function AddEventDialog() {
           ? { hour: Math.min(eventDialog.startTime.hour + 1, 23), minute: eventDialog.startTime.minute }
           : undefined,
         variant: "blue",
+        userId: defaultUserId,
       });
     }
-  }, [eventDialog.isOpen, eventDialog.startDate, eventDialog.startTime, form]);
+  }, [eventDialog.isOpen, eventDialog.startDate, eventDialog.startTime, form, selectedUserId]);
 
-  const onSubmit = (values: TEventFormData) => {
-    const userId = selectedUserId !== "all" && selectedUserId !== null 
-      ? selectedUserId 
-      : undefined;
-      
-    createEvent({ ...values, userId });
+  const onSubmit = (values: TEventFormData & { userId?: string }) => {
+    createEvent(values);
   };
 
   return (
@@ -176,6 +181,37 @@ export function AddEventDialog() {
                   )}
                 />
               </div>
+              
+              {users && users.length > 0 && (
+                <Form.Field
+                  control={form.control}
+                  name="userId"
+                  render={({ field, fieldState }) => (
+                    <Form.Item>
+                      <Form.Label>Assign to User</Form.Label>
+                      <Form.Control>
+                        <Select.Root value={field.value} onValueChange={field.onChange}>
+                          <Select.Trigger data-invalid={fieldState.invalid}>
+                            <Select.Value placeholder="Select a user (optional)" />
+                          </Select.Trigger>
+
+                          <Select.Content>
+                            <Select.Item value="none">
+                              <span>None</span>
+                            </Select.Item>
+                            {users.map((user) => (
+                              <Select.Item key={user.id} value={user.id}>
+                                {user.name}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Root>
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+              )}
 
               <Form.Field
                 control={form.control}
