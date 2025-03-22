@@ -53,27 +53,66 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
   });
 
   useEffect(() => {
-    // Parse event data for the form
+    if (!event) return;
+    
+    // Parse event data
     const startDate = parseISO(event.startDate);
     const endDate = parseISO(event.endDate);
     
-    form.reset({
+    console.log('Setting event values:', {
       title: event.title,
       description: event.description || "",
-      startDate,
-      startTime: {
+      color: event.color,
+      userId: event.user?.id || "none"
+    });
+    
+    // First force clear the form for a clean slate
+    form.reset({
+      title: "",
+      description: "",
+      startDate: undefined,
+      startTime: undefined,
+      endDate: undefined,
+      endTime: undefined,
+      variant: undefined,
+      userId: undefined,
+    });
+    
+    // Then set values individually and deliberately
+    setTimeout(() => {
+      // Set each field individually to ensure they're applied
+      form.setValue('title', event.title);
+      form.setValue('description', event.description || "");
+      form.setValue('startDate', startDate);
+      form.setValue('startTime', {
         hour: getHours(startDate),
         minute: getMinutes(startDate),
-      },
-      endDate,
-      endTime: {
+      });
+      form.setValue('endDate', endDate);
+      form.setValue('endTime', {
         hour: getHours(endDate),
         minute: getMinutes(endDate),
-      },
-      variant: event.color,
-      userId: event.user?.id,
-    });
+      });
+      form.setValue('variant', event.color);
+      form.setValue('userId', event.user?.id || "none");
+      
+      // After setting values, mark form as pristine (not dirty)
+      form.reset(undefined, { keepValues: true, keepDirty: false });
+      
+      // Check values after a delay
+      setTimeout(() => {
+        console.log('Form values after set:', form.getValues());
+      }, 100);
+    }, 0);
   }, [event, form]);
+
+  // Watch form values for debugging
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      console.log(`Form field changed: ${name}`, value);
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const onSubmit = (values: TEventFormData & { userId?: string }) => {
     updateEvent({ 
@@ -184,100 +223,124 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
           <Form.Field
             control={form.control}
             name="userId"
-            render={({ field, fieldState }) => (
-              <Form.Item>
-                <Form.Label>Assign to User</Form.Label>
-                <Form.Control>
-                  <Select.Root value={field.value} onValueChange={field.onChange}>
-                    <Select.Trigger data-invalid={fieldState.invalid}>
-                      <Select.Value placeholder="Select a user (optional)" />
-                    </Select.Trigger>
+            render={({ field, fieldState }) => {
+              // Find the user name to display
+              const displayName = field.value === "none" 
+                ? "None" 
+                : users.find(u => u.id === field.value)?.name || "None";
+                
+              return (
+                <Form.Item>
+                  <Form.Label>Assign to User</Form.Label>
+                  <Form.Control>
+                    <Select.Root 
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <Select.Trigger className="w-full" data-invalid={fieldState.invalid}>
+                        <Select.Value>
+                          {displayName}
+                        </Select.Value>
+                      </Select.Trigger>
 
-                    <Select.Content>
-                      <Select.Item value="none">
-                        <span>None</span>
-                      </Select.Item>
-                      {users.map((user) => (
-                        <Select.Item key={user.id} value={user.id}>
-                          {user.name}
+                      <Select.Content>
+                        <Select.Item value="none">
+                          <span>None</span>
                         </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
+                        {users.map((user) => (
+                          <Select.Item key={user.id} value={user.id}>
+                            {user.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select.Root>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              );
+            }}
           />
         )}
 
         <Form.Field
           control={form.control}
           name="variant"
-          render={({ field, fieldState }) => (
-            <Form.Item>
-              <Form.Label required>Variant</Form.Label>
-              <Form.Control>
-                <Select.Root value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger data-invalid={fieldState.invalid}>
-                    <Select.Value placeholder="Select an option" />
-                  </Select.Trigger>
+          render={({ field, fieldState }) => {
+            // Format variant name for display
+            const displayName = field.value 
+              ? field.value.charAt(0).toUpperCase() + field.value.slice(1) 
+              : "Select a variant";
+              
+            return (
+              <Form.Item>
+                <Form.Label required>Variant</Form.Label>
+                <Form.Control>
+                  <Select.Root 
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <Select.Trigger className="w-full" data-invalid={fieldState.invalid}>
+                      <Select.Value>
+                        {displayName}
+                      </Select.Value>
+                    </Select.Trigger>
 
-                  <Select.Content>
-                    <Select.Item value="blue">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-blue-500 dark:bg-blue-400" />
-                        Blue
-                      </div>
-                    </Select.Item>
+                    <Select.Content>
+                      <Select.Item value="blue">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-blue-500 dark:bg-blue-400" />
+                          Blue
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="indigo">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-indigo-500 dark:bg-indigo-400" />
-                        Indigo
-                      </div>
-                    </Select.Item>
+                      <Select.Item value="indigo">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                          Indigo
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="pink">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-pink-500 dark:bg-pink-400" />
-                        Pink
-                      </div>
-                    </Select.Item>
+                      <Select.Item value="pink">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-pink-500 dark:bg-pink-400" />
+                          Pink
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="red">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-red-500 dark:bg-red-400" />
-                        Red
-                      </div>
-                    </Select.Item>
+                      <Select.Item value="red">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-red-500 dark:bg-red-400" />
+                          Red
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="orange">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-orange-500 dark:bg-orange-400" />
-                        Orange
-                      </div>
-                    </Select.Item>
+                      <Select.Item value="orange">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-orange-500 dark:bg-orange-400" />
+                          Orange
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="amber">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-amber-500 dark:bg-amber-400" />
-                        Amber
-                      </div>
-                    </Select.Item>
+                      <Select.Item value="amber">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+                          Amber
+                        </div>
+                      </Select.Item>
 
-                    <Select.Item value="emerald">
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-                        Emerald
-                      </div>
-                    </Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </Form.Control>
-              <Form.ErrorMessage />
-            </Form.Item>
-          )}
+                      <Select.Item value="emerald">
+                        <div className="flex items-center gap-2">
+                          <div className="size-3.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                          Emerald
+                        </div>
+                      </Select.Item>
+                    </Select.Content>
+                  </Select.Root>
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            );
+          }}
         />
 
         <Form.Field

@@ -190,7 +190,10 @@ export function AddEventDialog() {
                     <Form.Item>
                       <Form.Label>Assign to User</Form.Label>
                       <Form.Control>
-                        <Select.Root value={field.value} onValueChange={field.onChange}>
+                        <Select.Root 
+                          value={field.value || "none"} 
+                          onValueChange={field.onChange}
+                        >
                           <Select.Trigger data-invalid={fieldState.invalid}>
                             <Select.Value placeholder="Select a user (optional)" />
                           </Select.Trigger>
@@ -220,7 +223,10 @@ export function AddEventDialog() {
                   <Form.Item>
                     <Form.Label required>Variant</Form.Label>
                     <Form.Control>
-                      <Select.Root value={field.value} onValueChange={field.onChange}>
+                      <Select.Root 
+                        value={field.value || "blue"} 
+                        onValueChange={field.onChange}
+                      >
                         <Select.Trigger data-invalid={fieldState.invalid}>
                           <Select.Value placeholder="Select an option" />
                         </Select.Trigger>
