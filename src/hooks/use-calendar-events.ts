@@ -9,6 +9,7 @@ interface UseCalendarEventsParams {
   selectedDate: Date;
   selectedUserId?: string | "all" | null;
   hasUsers?: boolean;
+  view?: string;
 }
 
 // Query key factory pattern to solve React Query linting issues

@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "check": "bun run lint && bun run type-check",
     "turbo": "next dev --turbo"
   },
   "dependencies": {
