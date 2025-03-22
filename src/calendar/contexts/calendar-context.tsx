@@ -11,7 +11,6 @@ interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBase
   selectedUserId: U["id"] | "all" | null;
   setSelectedUserId: (userId: U["id"] | "all" | null) => void;
   badgeVariant: "dot" | "colored";
-  setBadgeVariant: (variant: "dot" | "colored") => void;
   weekStartsOn: WeekStartNumber;
   dayBoundaries?: {
     startHour: number;
@@ -46,6 +45,7 @@ interface CalendarProviderProps<U extends IBaseUser = IDefaultUser> {
   users?: U[];
   initialView?: TCalendarView;
   weekStartsOn?: WeekStartDay;
+  badgeVariant?: "dot" | "colored";
   dayBoundaries?: {
     startHour: number;
     endHour: number;
@@ -57,9 +57,9 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
   users, 
   initialView = "month",
   weekStartsOn = "Sunday",
+  badgeVariant = "colored",
   dayBoundaries
 }: CalendarProviderProps<U>) {
-  const [badgeVariant, setBadgeVariant] = useState<"dot" | "colored">("colored");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<U["id"] | "all" | null>(users ? "all" : null);
   const [currentView, setCurrentView] = useState<TCalendarView>(initialView);
@@ -120,8 +120,7 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         setSelectedDate: handleSelectDate, 
         selectedUserId, 
         setSelectedUserId, 
-        badgeVariant, 
-        setBadgeVariant, 
+        badgeVariant,
         weekStartsOn: WeekStartDay[weekStartsOn],
         dayBoundaries,
         users, 
