@@ -28,7 +28,7 @@ interface EditEventFormProps {
 
 export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEventFormProps) {
   const { toast } = useToast();
-  const { users, selectedUserId } = useCalendar();
+  const { users } = useCalendar();
   const { mutate: updateEvent, isPending } = useUpdateEvent({
     onSuccess: () => {
       toast({
@@ -41,78 +41,26 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
   const form = useForm<TEventFormData & { userId?: string }>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      startDate: undefined,
-      startTime: undefined,
-      endDate: undefined,
-      endTime: undefined,
-      variant: undefined,
-      userId: undefined,
+      title: event.title || "",
+      description: event.description || "",
+      startDate: event.startDate ? parseISO(event.startDate) : new Date(),
+      startTime: event.startDate ? {
+        hour: getHours(parseISO(event.startDate)),
+        minute: getMinutes(parseISO(event.startDate))
+      } : { hour: 12, minute: 0 },
+      endDate: event.endDate ? parseISO(event.endDate) : new Date(),
+      endTime: event.endDate ? {
+        hour: getHours(parseISO(event.endDate)),
+        minute: getMinutes(parseISO(event.endDate))
+      } : { hour: 13, minute: 0 },
+      variant: event.color || "blue",
+      userId: event.user?.id || "none",
     },
   });
 
-  useEffect(() => {
-    if (!event) return;
-    
-    // Parse event data
-    const startDate = parseISO(event.startDate);
-    const endDate = parseISO(event.endDate);
-    
-    console.log('Setting event values:', {
-      title: event.title,
-      description: event.description || "",
-      color: event.color,
-      userId: event.user?.id || "none"
-    });
-    
-    // First force clear the form for a clean slate
-    form.reset({
-      title: "",
-      description: "",
-      startDate: undefined,
-      startTime: undefined,
-      endDate: undefined,
-      endTime: undefined,
-      variant: undefined,
-      userId: undefined,
-    });
-    
-    // Then set values individually and deliberately
-    setTimeout(() => {
-      // Set each field individually to ensure they're applied
-      form.setValue('title', event.title);
-      form.setValue('description', event.description || "");
-      form.setValue('startDate', startDate);
-      form.setValue('startTime', {
-        hour: getHours(startDate),
-        minute: getMinutes(startDate),
-      });
-      form.setValue('endDate', endDate);
-      form.setValue('endTime', {
-        hour: getHours(endDate),
-        minute: getMinutes(endDate),
-      });
-      form.setValue('variant', event.color);
-      form.setValue('userId', event.user?.id || "none");
-      
-      // After setting values, mark form as pristine (not dirty)
-      form.reset(undefined, { keepValues: true, keepDirty: false });
-      
-      // Check values after a delay
-      setTimeout(() => {
-        console.log('Form values after set:', form.getValues());
-      }, 100);
-    }, 0);
-  }, [event, form]);
-
-  // Watch form values for debugging
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      console.log(`Form field changed: ${name}`, value);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+  // Using defaultValues instead of useEffect reset to avoid uncontrolled/controlled warnings
+  // This creates a more stable initial state for controlled components like TimeInput
+  // No useEffect reset needed as initial values are already set
 
   const onSubmit = (values: TEventFormData & { userId?: string }) => {
     updateEvent({ 
