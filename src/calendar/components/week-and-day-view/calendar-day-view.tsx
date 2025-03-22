@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { DayEventSkeleton, Skeleton } from "@/calendar/components/skeleton-loader";
+import { DayEventSkeleton, Skeleton } from "@/calendar/components/skeleton";
 import { 
   CELL_HEIGHT_PX, 
   getDisplayHours, 
@@ -163,8 +163,8 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
 
         <div className="flex-1 space-y-3">
           {isLoading ? (
-            <div className="p-4 space-y-4">
-              <Skeleton className="h-6 w-48 mb-4" />
+            <div className="space-y-4 p-4">
+              <Skeleton className="mb-4 h-6 w-48" />
               <div className="space-y-5">
                 <div className="space-y-3">
                   <Skeleton className="h-5 w-full max-w-40" />

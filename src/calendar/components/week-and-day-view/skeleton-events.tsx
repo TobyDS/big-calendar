@@ -1,4 +1,4 @@
-import { DayEventSkeleton } from "@/calendar/components/skeleton-loader";
+import { DayEventSkeleton } from "@/calendar/components/skeleton";
 import { groupEvents, getEventBlockStyle } from "@/calendar/helpers";
 import { createSkeletonEvents } from "@/calendar/helpers/skeleton-events";
 

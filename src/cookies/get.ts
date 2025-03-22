@@ -17,7 +17,7 @@ export async function getTheme(): Promise<TTheme> {
     }
     
     return theme as TTheme;
-  } catch (error) {
+  } catch {
     // If there's any error accessing cookies, return the default theme
     return DEFAULT_VALUES.theme as TTheme;
   }

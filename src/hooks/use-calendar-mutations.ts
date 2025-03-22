@@ -80,7 +80,7 @@ export function useCreateEvent({ onSuccess }: EventMutationOptions = {}) {
       
       return { previousEvents, queryKey };
     },
-    onError: (err, newEvent, context) => {
+    onError: (_err, _newEvent, context) => {
       if (context) {
         // If there's an error, roll back to the previous value
         queryClient.setQueryData(context.queryKey, context.previousEvents);
@@ -147,7 +147,7 @@ export function useUpdateEvent({ onSuccess }: EventMutationOptions = {}) {
       
       return { previousEvents, queryKey };
     },
-    onError: (err, updatedEvent, context) => {
+    onError: (_err, _updatedEvent, context) => {
       if (context) {
         // If there's an error, roll back to the previous value
         queryClient.setQueryData(context.queryKey, context.previousEvents);
@@ -210,7 +210,7 @@ export function useDeleteEvent({ onSuccess }: EventMutationOptions = {}) {
       
       return { contexts };
     },
-    onError: (err, eventId, context) => {
+    onError: (_err, _eventId, context) => {
       if (context?.contexts) {
         // If there's an error, roll back to the previous values
         context.contexts.forEach(ctx => {

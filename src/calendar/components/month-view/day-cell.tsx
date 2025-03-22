@@ -4,7 +4,7 @@ import { isToday, startOfDay } from "date-fns";
 import { cn } from "@/utils/helpers/cn.helper";
 import { EventBullet } from "@/calendar/components/month-view/event-bullet";
 import { MonthEventBadge } from "@/calendar/components/month-view/month-event-badge";
-import { MonthEventSkeleton } from "@/calendar/components/skeleton-loader";
+import { MonthEventSkeleton } from "@/calendar/components/skeleton";
 import { getMonthCellEvents } from "@/calendar/helpers";
 import { SKELETON_MONTH_EVENTS } from "@/calendar/helpers/skeleton-events";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
@@ -55,7 +55,7 @@ export function DayCell({ cell, events, eventPositions, isLoading = false }: IPr
                 // Always show skeletons from top to bottom
                 position < skeletonCount && (
                   <>
-                    <EventBullet className="lg:hidden opacity-50" color="blue" />
+                    <EventBullet className="opacity-50 lg:hidden" color="blue" />
                     <MonthEventSkeleton className="hidden lg:flex" />
                   </>
                 )

@@ -4,11 +4,9 @@ import { useMemo, useCallback } from "react";
 
 import { getEvents } from "@/calendar/requests";
 import type { IDefaultEvent } from "@/calendar/interfaces";
-import type { TCalendarView } from "@/calendar/types";
 
 interface UseCalendarEventsParams {
   selectedDate: Date;
-  view: TCalendarView;
   selectedUserId?: string | "all" | null;
   hasUsers?: boolean;
 }
@@ -21,7 +19,7 @@ const eventsKeys = {
     [...eventsKeys.all, "month", dateRangeStart, dateRangeEnd] as const,
 };
 
-export function useCalendarEvents({ selectedDate, view, selectedUserId, hasUsers }: UseCalendarEventsParams) {
+export function useCalendarEvents({ selectedDate, selectedUserId, hasUsers }: UseCalendarEventsParams) {
   const queryClient = useQueryClient();
   
   // Always use month range for data fetching regardless of view

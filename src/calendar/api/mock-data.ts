@@ -1,4 +1,3 @@
-import { addDays, subDays } from "date-fns";
 import type { IDefaultEvent } from "@/calendar/interfaces";
 import type { TEventColor } from "@/calendar/types";
 import { USERS_MOCK } from "@/calendar/mocks";

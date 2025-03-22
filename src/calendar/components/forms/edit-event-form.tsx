@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import type { TimeValue } from "react-aria-components";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { getHours, getMinutes, parseISO } from "date-fns";
 
 import { Form } from "@/components/ui/form";
@@ -307,7 +306,7 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
           )}
         />
         
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="mt-4 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancelAction}>
             Cancel
           </Button>

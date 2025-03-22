@@ -7,12 +7,12 @@ import { useState } from "react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { useDeleteEvent, useUpdateEvent } from "@/hooks/use-calendar-mutations";
+import { useDeleteEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
 import { EditEventForm } from "@/calendar/components/forms/edit-event-form";
 
 export function EventDetailsDialog() {
-  const { eventDetailsDialog, closeEventDetailsDialog, openEventDialog } = useCalendar();
+  const { eventDetailsDialog, closeEventDetailsDialog } = useCalendar();
   const event = eventDetailsDialog.event;
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
@@ -116,7 +116,7 @@ export function EventDetailsDialog() {
         <Dialog.Footer>
           {isEditing ? null : (
             <>
-              <div className="flex-1 flex gap-2">
+              <div className="flex flex-1 gap-2">
                 <Button 
                   type="button" 
                   variant="outline" 
