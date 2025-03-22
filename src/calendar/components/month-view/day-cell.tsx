@@ -7,7 +7,6 @@ import { MonthEventBadge } from "@/calendar/components/month-view/month-event-ba
 import { MonthEventSkeleton } from "@/calendar/components/skeleton-loader";
 import { getMonthCellEvents } from "@/calendar/helpers";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
-import type { TEventColor } from "@/calendar/types";
 
 interface IProps {
   cell: ICalendarCell;
