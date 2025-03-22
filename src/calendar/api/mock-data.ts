@@ -1,6 +1,7 @@
 import { addDays, subDays } from "date-fns";
 import type { IDefaultEvent } from "@/calendar/interfaces";
 import type { TEventColor } from "@/calendar/types";
+import { USERS_MOCK } from "@/calendar/mocks";
 
 // Seed data for mock events
 const colors: TEventColor[] = ["blue", "indigo", "pink", "red", "orange", "amber", "emerald"];
@@ -18,7 +19,35 @@ export function generateMockEvents(
 ): IDefaultEvent[] {
   const events: IDefaultEvent[] = [];
   
-  for (let i = 0; i < count; i++) {
+  // Track busy time slots for each user to avoid overlaps
+  const userBusySlots: Record<string, Array<{start: Date, end: Date}>> = {};
+  
+  // Initialize empty busy slots array for each user
+  USERS_MOCK.forEach(user => {
+    userBusySlots[user.id] = [];
+  });
+  
+  // Helper function to check if a time slot overlaps with existing events
+  const isTimeSlotAvailable = (userId: string, start: Date, end: Date): boolean => {
+    const userSlots = userBusySlots[userId];
+    return !userSlots.some(slot => 
+      (start < slot.end && end > slot.start)
+    );
+  };
+  
+  // Helper function to add a busy slot for a user
+  const addBusySlot = (userId: string, start: Date, end: Date): void => {
+    userBusySlots[userId].push({ start, end });
+    // Sort busy slots by start time to make overlap checking more efficient
+    userBusySlots[userId].sort((a, b) => a.start.getTime() - b.start.getTime());
+  };
+  
+  let attempts = 0;
+  let i = 0;
+  
+  while (i < count && attempts < count * 10) { // Limit attempts to avoid infinite loops
+    attempts++;
+    
     // Random date between start and end
     const dateRange = endDate.getTime() - startDate.getTime();
     const randomOffset = Math.random() * dateRange;
@@ -39,6 +68,22 @@ export function generateMockEvents(
     const endDateTime = new Date(eventDate);
     endDateTime.setMinutes(endDateTime.getMinutes() + durationMinutes);
     
+    // Find an available user for this time slot
+    const availableUsers = USERS_MOCK.filter(user => 
+      isTimeSlotAvailable(user.id, eventDate, endDateTime)
+    );
+    
+    // If no users are available for this slot, try a different time
+    if (availableUsers.length === 0) {
+      continue;
+    }
+    
+    // Pick a random available user
+    const randomUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
+    
+    // Register this slot as busy for the selected user
+    addBusySlot(randomUser.id, eventDate, endDateTime);
+    
     events.push({
       id: `mock-${i}-${Date.now()}`,
       title: titles[Math.floor(Math.random() * titles.length)],
@@ -46,12 +91,10 @@ export function generateMockEvents(
       startDate: eventDate.toISOString(),
       endDate: endDateTime.toISOString(),
       color: colors[Math.floor(Math.random() * colors.length)],
-      user: Math.random() > 0.7 ? {
-        id: `user-${Math.floor(Math.random() * 4) + 1}`,
-        name: `Test User ${Math.floor(Math.random() * 4) + 1}`,
-        picturePath: null
-      } : undefined
+      user: randomUser
     });
+    
+    i++; // Only increment on successful event creation
   }
   
   return events;

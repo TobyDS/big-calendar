@@ -1,31 +1,11 @@
 import type { IDefaultUser } from "@/calendar/interfaces";
+import { USERS_MOCK } from "@/calendar/mocks";
 
 // Simulate network delay
 const MOCK_DELAY_MS = 300;
 
-// Mock users for testing
-export const mockUsers: IDefaultUser[] = [
-  {
-    id: "user-1",
-    name: "Sarah Johnson",
-    picturePath: null,
-  },
-  {
-    id: "user-2",
-    name: "Michael Chen",
-    picturePath: null,
-  },
-  {
-    id: "user-3",
-    name: "Alicia Rodriguez",
-    picturePath: null,
-  },
-  {
-    id: "user-4",
-    name: "David Kim",
-    picturePath: null,
-  }
-];
+// Use the same mock users as defined in mocks.ts
+export const mockUsers: IDefaultUser[] = USERS_MOCK;
 
 /**
  * Mock implementation of getUsers
