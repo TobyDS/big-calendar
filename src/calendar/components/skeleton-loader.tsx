@@ -40,8 +40,8 @@ export function DayEventSkeleton({ className }: SkeletonProps) {
         backgroundColor: 'rgba(156, 163, 175, 0.1)'
       }}
     >
-      <Skeleton className="h-3 w-3/4" />
-      <Skeleton className="h-3 w-1/2" />
+      <Skeleton className="h-3 w-[min(80%,8em)]" />
+      <Skeleton className="h-3 w-[min(100%,10em)]" />
     </div>
   );
 } 
