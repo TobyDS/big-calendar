@@ -1,13 +1,11 @@
+import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { CELL_HEIGHT_PX, DAYS_IN_WEEK, MINUTES_IN_HOUR } from "@/calendar/helpers/constants";
 import { format, isSameDay, isSameWeek } from "date-fns";
 import { useEffect, useState } from "react";
-import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { CELL_HEIGHT_PX } from "@/calendar/helpers";
 
 interface Props {
   view: 'week' | 'day';
 }
-
-const MINUTES_IN_HOUR = 60;
 
 export function CalendarTimeline({ view }: Props) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -57,8 +55,8 @@ export function CalendarTimeline({ view }: Props) {
     if (view === 'day') return "-1.5px";
     
     const currentDayColumn = currentTime.getDay();
-    const adjustedColumn = (currentDayColumn - weekStartsOn + 7) % 7;
-    return (adjustedColumn * (100 / 7)) + "%";
+    const adjustedColumn = (currentDayColumn - weekStartsOn + DAYS_IN_WEEK) % DAYS_IN_WEEK;
+    return (adjustedColumn * (100 / DAYS_IN_WEEK)) + "%";
   };
 
   return (
@@ -78,7 +76,7 @@ export function CalendarTimeline({ view }: Props) {
           className="absolute border-t border-primary-600 dark:border-primary-700"
           style={{
             left: getDotPosition(),
-            width: "calc(100% / 7)",
+            width: `calc(100% / ${DAYS_IN_WEEK})`,
             transform: "translateX(-0.5px)" // Adjust for border alignment
           }}
         />

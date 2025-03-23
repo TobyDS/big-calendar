@@ -1,19 +1,17 @@
-import { startOfWeek, addDays, format, parseISO, isSameDay } from "date-fns";
-import { CELL_HEIGHT_PX, getCalendarHeight, getDisplayHours } from "@/calendar/helpers";
-import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
+import { addDays, format, isSameDay, parseISO, startOfWeek } from "date-fns";
+
 import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
-import { SkeletonDayEvents } from "@/calendar/components/week-and-day-view/skeleton-events";
-import { groupEvents, getEventBlockStyle } from "@/calendar/helpers";
+import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
+import { WeekSkeletonEvents } from "@/calendar/components/week-and-day-view/skeleton-events/week-skeleton-events";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { CELL_HEIGHT_PX, DAYS_IN_WEEK, getCalendarHeight, getDisplayHours, getEventBlockStyle, groupEvents } from "@/calendar/helpers";
 import type { IEvent } from "@/calendar/interfaces";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IProps {
   singleDayEvents: IEvent[];
   isLoading?: boolean;
 }
-
-const DAYS_IN_WEEK = 7;
 
 export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps) {
   const { selectedDate, weekStartsOn, openEventDialog, dayBoundaries } = useCalendar();
@@ -87,7 +85,7 @@ export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps)
 
                       <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
                         {isLoading ? (
-                          <SkeletonDayEvents dayIndex={dayIndex} dayBoundaries={dayBoundaries} />
+                          <WeekSkeletonEvents dayIndex={dayIndex} dayBoundaries={dayBoundaries} />
                         ) : (
                           groupedEvents.map(group =>
                             group.events.map(({ event, column }) => {

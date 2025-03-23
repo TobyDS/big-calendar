@@ -1,105 +1,14 @@
 import {
-  addDays,
-  addMonths,
-  addWeeks,
-  subDays,
-  subMonths,
-  subWeeks,
-  isSameWeek,
-  isSameDay,
-  isSameMonth,
-  startOfWeek,
-  startOfMonth,
-  endOfMonth,
-  endOfWeek,
-  format,
-  parseISO,
-  differenceInMinutes,
-  eachDayOfInterval,
-  startOfDay,
   areIntervalsOverlapping,
+  differenceInMinutes,
+  parseISO,
 } from "date-fns";
 
-import type { TCalendarView } from "@/calendar/types";
-import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
+import { CELL_HEIGHT_PX, MINUTES_IN_HOUR } from "@/calendar/helpers/constants";
+import type { IEvent } from "@/calendar/interfaces";
 
-// Calendar Constants
-/** Maximum number of events that can be stacked in the month view */
-const MAX_EVENT_STACK = 3;
-/** Height of a single time cell in pixels */
-export const CELL_HEIGHT_PX = 96;
-
-
-// ================ Header helper functions ================ //
-
-export function rangeText(view: TCalendarView, date: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1) {
-  const formatString = "MMM d, yyyy";
-  let start: Date;
-  let end: Date;
-
-  switch (view) {
-    case "month":
-      start = startOfMonth(date);
-      end = endOfMonth(date);
-      break;
-    case "week":
-      start = startOfWeek(date, { weekStartsOn });
-      end = endOfWeek(date, { weekStartsOn });
-      break;
-    case "day":
-      return format(date, formatString);
-    default:
-      return "Error while formatting ";
-  }
-
-  return `${format(start, formatString)} - ${format(end, formatString)}`;
-}
-
-export function navigateDate(date: Date, view: TCalendarView, direction: "previous" | "next"): Date {
-  const operations = {
-    month: direction === "next" ? addMonths : subMonths,
-    week: direction === "next" ? addWeeks : subWeeks,
-    day: direction === "next" ? addDays : subDays,
-  };
-
-  return operations[view](date, 1);
-}
-
-export function getEventsCount(
-  events: IEvent[], 
-  date: Date, 
-  view: TCalendarView, 
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1,
-  dayBoundaries?: { startHour: number; endHour: number }
-): number {
-  const compareFns = {
-    day: isSameDay,
-    week: (d1: Date, d2: Date) => isSameWeek(d1, d2, { weekStartsOn }),
-    month: isSameMonth,
-  };
-
-  return events.filter(event => {
-    const eventStart = new Date(event.startDate);
-    const eventEnd = new Date(event.endDate);
-    
-    // First check if event is in the right time period (day/week/month)
-    const isInPeriod = compareFns[view](eventStart, date);
-    
-    // If no day boundaries or not in day/week view, just return period check
-    if (!dayBoundaries || view === 'month') {
-      return isInPeriod;
-    }
-
-    // For day/week views, check if event overlaps with visible hours
-    const visibleStart = new Date(eventStart);
-    visibleStart.setHours(dayBoundaries.startHour, 0, 0, 0);
-    
-    const visibleEnd = new Date(eventStart);
-    visibleEnd.setHours(dayBoundaries.endHour, 0, 0, 0);
-
-    return isInPeriod && eventStart < visibleEnd && eventEnd > visibleStart;
-  }).length;
-}
+// Minimum height for event blocks to ensure they remain visible and clickable
+const MIN_EVENT_BLOCK_HEIGHT_PX = CELL_HEIGHT_PX / 2;
 
 // ================ Week and day view helper functions ================ //
 
@@ -230,7 +139,6 @@ export function getEventBlockStyle(
   const endHour = dayBoundaries?.endHour ?? 23;
   
   // Calculate minutes for the event and the day boundaries
-  const MINUTES_IN_HOUR = 60;
   const eventStartMinutes = startDate.getHours() * MINUTES_IN_HOUR + startDate.getMinutes();
   const eventEndMinutes = endDate.getHours() * MINUTES_IN_HOUR + endDate.getMinutes();
   const visibleStartMinutes = startHour * MINUTES_IN_HOUR;
@@ -245,7 +153,7 @@ export function getEventBlockStyle(
   // Calculate height based on event duration, clamped to visible range
   const clampedEndMinutes = Math.min(eventEndMinutes, visibleEndMinutes);
   const clampedStartMinutes = Math.max(eventStartMinutes, visibleStartMinutes);
-  const height = (clampedEndMinutes - clampedStartMinutes) * minuteHeight;
+  const calculatedEventHeight = (clampedEndMinutes - clampedStartMinutes) * minuteHeight;
 
   // Calculate width and left position
   const columnWidth = `${100 / totalColumns}%`;
@@ -253,86 +161,9 @@ export function getEventBlockStyle(
 
   return {
     top: Math.round(top) + "px",
-    height: Math.round(Math.max(height, CELL_HEIGHT_PX / 2)) + "px", // Minimum height for visibility
+    height: Math.round(Math.max(calculatedEventHeight, MIN_EVENT_BLOCK_HEIGHT_PX)) + "px",
     width: columnWidth,
     left: leftPosition,
     position: "absolute" as const,
   };
-}
-
-// ================ Month view helper functions ================ //
-
-export function calculateMonthEventPositions(singleDayEvents: IEvent[], selectedDate: Date) {
-  const monthStart = startOfMonth(selectedDate);
-  const monthEnd = endOfMonth(selectedDate);
-
-  const eventPositions: { [key: string]: number } = {};
-  const occupiedPositions: { [key: string]: boolean[] } = {};
-
-  eachDayOfInterval({ start: monthStart, end: monthEnd }).forEach(day => {
-    occupiedPositions[day.toISOString()] = Array(MAX_EVENT_STACK).fill(false);
-  });
-
-  const sortedEvents = [
-    ...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()),
-  ];
-
-  sortedEvents.forEach(event => {
-    const eventStart = parseISO(event.startDate);
-    const eventEnd = parseISO(event.endDate);
-    const eventDays = eachDayOfInterval({
-      start: eventStart < monthStart ? monthStart : eventStart,
-      end: eventEnd > monthEnd ? monthEnd : eventEnd,
-    });
-
-    let position = -1;
-
-    for (let i = 0; i < MAX_EVENT_STACK; i++) {
-      if (
-        eventDays.every(day => {
-          const dayPositions = occupiedPositions[startOfDay(day).toISOString()];
-          return dayPositions && !dayPositions[i];
-        })
-      ) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position !== -1) {
-      eventDays.forEach(day => {
-        const dayKey = startOfDay(day).toISOString();
-        occupiedPositions[dayKey][position] = true;
-      });
-      eventPositions[event.id] = position;
-    }
-  });
-
-  return eventPositions;
-}
-
-export function getMonthCellEvents(date: Date, events: IEvent[], eventPositions: Record<string, number>) {
-  const eventsForDate = events.filter(event => {
-    const eventStart = parseISO(event.startDate);
-    return isSameDay(date, eventStart);
-  });
-
-  return eventsForDate
-    .map(event => ({
-      ...event,
-      position: eventPositions[event.id] ?? -1,
-    }))
-    .sort((a, b) => a.position - b.position);
-}
-
-export function getCalendarCells(date: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1): ICalendarCell[] {
-  const start = startOfWeek(startOfMonth(date), { weekStartsOn });
-  const end = endOfWeek(endOfMonth(date), { weekStartsOn });
-  const days = eachDayOfInterval({ start, end });
-
-  return days.map(day => ({
-    day: day.getDate(),
-    currentMonth: isSameMonth(day, date),
-    date: day,
-  }));
-}
+} 

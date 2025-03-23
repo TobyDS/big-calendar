@@ -1,26 +1,16 @@
+import { format, isWithinInterval, parseISO } from "date-fns";
 import { Calendar, Clock, User } from "lucide-react";
-import { parseISO, format, isWithinInterval } from "date-fns";
 import { useMemo } from "react";
 
+import { Skeleton } from "@/calendar/components/skeleton";
+import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
+import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
+import { SingleDaySkeletonEvents } from "@/calendar/components/week-and-day-view/skeleton-events/day-skeleton-events";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { CELL_HEIGHT_PX, getCalendarHeight, getDisplayHours, getEventBlockStyle, groupEvents } from "@/calendar/helpers";
+import type { IEvent } from "@/calendar/interfaces";
 import { DayPicker } from "@/components/ui/day-picker";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
-import { CalendarTimeline } from "@/calendar/components/week-and-day-view/calendar-time-line";
-import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { DayEventSkeleton, Skeleton } from "@/calendar/components/skeleton";
-import { 
-  CELL_HEIGHT_PX, 
-  getDisplayHours, 
-  getCalendarHeight, 
-  groupEvents, 
-  getEventBlockStyle 
-} from "@/calendar/helpers";
-import type { IEvent } from "@/calendar/interfaces";
-
-interface IProps {
-  singleDayEvents: IEvent[];
-  isLoading?: boolean;
-}
 
 function isEventInProgress(event: IEvent): boolean {
   const now = new Date();
@@ -30,12 +20,12 @@ function isEventInProgress(event: IEvent): boolean {
   });
 }
 
-export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) {
+export function CalendarDayView({ singleDayEvents, isLoading = false }: { singleDayEvents: IEvent[]; isLoading?: boolean }) {
   const { selectedDate, setSelectedDate, users, weekStartsOn, hasUsers, openEventDialog, dayBoundaries } = useCalendar();
 
   const hours = useMemo(() => getDisplayHours(dayBoundaries), [dayBoundaries]);
   const calendarHeight = useMemo(() => getCalendarHeight(dayBoundaries), [dayBoundaries]);
-  
+
   const dayEvents = useMemo(() => {
     return singleDayEvents.filter(event => {
       const eventDate = parseISO(event.startDate);
@@ -49,38 +39,7 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
 
   const groupedEvents = useMemo(() => groupEvents(dayEvents), [dayEvents]);
 
-  const currentEvents = useMemo(
-    () => dayEvents.filter(event => isEventInProgress(event)),
-    [dayEvents]
-  );
-  
-  // Generate deterministic skeleton placeholder events for loading state
-  const getSkeletonEvents = () => {
-    if (!isLoading) return null;
-    
-    // Fixed skeleton configuration
-    const skeletonEvents = [
-      { startHour: 9, duration: 2 },
-      { startHour: 12, duration: 1 },
-      { startHour: 14, duration: 2 },
-      { startHour: 16, duration: 1 }
-    ];
-    
-    return skeletonEvents.map((config, index) => {
-      const style = {
-        left: `${0}%`,
-        width: `${100}%`,
-        top: `${(config.startHour - dayBoundaries!.startHour) * CELL_HEIGHT_PX}px`,
-        height: `${config.duration * CELL_HEIGHT_PX}px`,
-      };
-      
-      return (
-        <div key={`skeleton-${index}`} className="pointer-events-auto absolute p-1" style={style}>
-          <DayEventSkeleton />
-        </div>
-      );
-    });
-  };
+  const currentEvents = useMemo(() => dayEvents.filter(event => isEventInProgress(event)), [dayEvents]);
 
   return (
     <div className="flex h-full">
@@ -105,14 +64,14 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
                   <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                     {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
 
-                    <div 
+                    <div
                       className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
                       onClick={() => openEventDialog(new Date(selectedDate), { hour, minute: 0 })}
                     />
 
                     <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed border-b-tertiary"></div>
 
-                    <div 
+                    <div
                       className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
                       onClick={() => openEventDialog(new Date(selectedDate), { hour, minute: 30 })}
                     />
@@ -120,19 +79,14 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
                 ))}
 
                 {/* Events */}
-                <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
+                <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: "hidden" }}>
                   {isLoading ? (
-                    getSkeletonEvents()
+                    <SingleDaySkeletonEvents dayBoundaries={dayBoundaries} />
                   ) : (
                     groupedEvents.map(group =>
                       group.events.map(({ event, column }) => {
-                        const style = getEventBlockStyle(
-                          event,
-                          column,
-                          dayBoundaries,
-                          group.totalColumns
-                        );
-                        
+                        const style = getEventBlockStyle(event, column, dayBoundaries, group.totalColumns);
+
                         return (
                           <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
                             <EventBlock event={event} />
@@ -152,14 +106,7 @@ export function CalendarDayView({ singleDayEvents, isLoading = false }: IProps) 
       </div>
 
       <div className="hidden w-72 divide-y border-l md:block">
-        <DayPicker 
-          className="mx-auto w-fit" 
-          mode="single" 
-          selected={selectedDate} 
-          onSelect={setSelectedDate} 
-          initialFocus
-          weekStartsOn={weekStartsOn}
-        />
+        <DayPicker className="mx-auto w-fit" mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus weekStartsOn={weekStartsOn} />
 
         <div className="flex-1 space-y-3">
           {isLoading ? (

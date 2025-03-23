@@ -1,5 +1,5 @@
-import type { TEventColor } from "@/calendar/types";
 import type { IDefaultEvent } from "@/calendar/interfaces";
+import type { TEventColor } from "@/calendar/types";
 
 interface SkeletonEvent {
   startHour: number;

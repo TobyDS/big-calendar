@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState } from "react";
 
-import type { IBaseEvent, IDefaultEvent, IBaseUser, IDefaultUser } from "@/calendar/interfaces";
-import { WeekStartDay, type WeekStartNumber, type TCalendarView } from "@/calendar/types";
+import type { IBaseEvent, IBaseUser, IDefaultEvent, IDefaultUser } from "@/calendar/interfaces";
+import { WeekStartDay, type TCalendarView, type WeekStartNumber } from "@/calendar/types";
 
 interface ICalendarContext<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser> {
   selectedDate: Date;

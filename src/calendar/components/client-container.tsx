@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { isSameDay, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { endOfMonth, endOfWeek, isSameDay, parseISO, startOfMonth, startOfWeek } from "date-fns";
 import { usePathname } from "next/navigation";
+import { useEffect, useMemo } from "react";
 
-import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
+import { EventDetailsDialog } from "@/calendar/components/dialogs/event-details-dialog";
 import { CalendarHeader } from "@/calendar/components/header/calendar-header";
 import { CalendarMonthView } from "@/calendar/components/month-view/calendar-month-view";
 import { CalendarDayView } from "@/calendar/components/week-and-day-view/calendar-day-view";
 import { CalendarWeekView } from "@/calendar/components/week-and-day-view/calendar-week-view";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
 import type { TCalendarView } from "@/calendar/types";
-import { AddEventDialog } from "@/calendar/components/dialogs/add-event-dialog";
-import { EventDetailsDialog } from "@/calendar/components/dialogs/event-details-dialog";
 import { useCalendarEvents } from "@/hooks/use-calendar-events";
 
 interface IProps {

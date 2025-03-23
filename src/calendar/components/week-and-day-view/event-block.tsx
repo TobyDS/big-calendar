@@ -1,23 +1,11 @@
-import { cva } from "class-variance-authority";
-import { format, differenceInMinutes, parseISO } from "date-fns";
-import { CELL_HEIGHT_PX } from "@/calendar/helpers";
+import { cva, type VariantProps } from "class-variance-authority";
+import { differenceInMinutes, format, parseISO } from "date-fns";
+import { type HTMLAttributes } from "react";
 
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-
+import { CELL_HEIGHT_PX, COMPACT_EVENT_THRESHOLD_MINUTES, EVENT_VERTICAL_PADDING, MIN_DURATION_FOR_TIME_DISPLAY, MINUTES_IN_HOUR } from "@/calendar/helpers/constants";
+import { type IEvent } from "@/calendar/interfaces";
 import { cn } from "@/utils/helpers/cn.helper";
-
-import type { HTMLAttributes } from "react";
-import type { IEvent } from "@/calendar/interfaces";
-import type { VariantProps } from "class-variance-authority";
-
-const MINUTES_IN_HOUR = 60;
-
-/** Vertical padding in pixels subtracted from event block height calculations */
-const EVENT_VERTICAL_PADDING = 8;
-/** Duration threshold in minutes below which events switch to a compact layout */
-const COMPACT_EVENT_THRESHOLD_MINUTES = 35;
-/** Minimum event duration in minutes required to display the event time */
-const MIN_DURATION_FOR_TIME_DISPLAY = 25;
 
 const calendarWeekEventCardVariants = cva(
   "flex select-none flex-col gap-0.5 truncate whitespace-nowrap rounded-md border px-2 py-1.5 text-xs transition-colors duration-200 focus-visible:outline-offset-2",
