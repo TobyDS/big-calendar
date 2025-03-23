@@ -24,27 +24,11 @@ import type { TCalendarView } from "@/calendar/types";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
 
 // Calendar Constants
-/** Number of days in a week */
-export const DAYS_IN_WEEK = 7;
-
 /** Maximum number of events that can be stacked in the month view */
-export const MAX_EVENT_STACK = 3;
-
-
-/** Number of minutes in an hour */
-export const MINUTES_IN_HOUR = 60;
-
+const MAX_EVENT_STACK = 3;
 /** Height of a single time cell in pixels */
 export const CELL_HEIGHT_PX = 96;
 
-/** Duration threshold in minutes below which events switch to a compact layout */
-export const COMPACT_EVENT_THRESHOLD_MINUTES = 35;
-
-/** Minimum event duration in minutes required to display the event time */
-export const MIN_DURATION_FOR_TIME_DISPLAY = 25;
-
-/** Vertical padding in pixels subtracted from event block height calculations */
-export const EVENT_VERTICAL_PADDING = 8;
 
 // ================ Header helper functions ================ //
 
@@ -246,6 +230,7 @@ export function getEventBlockStyle(
   const endHour = dayBoundaries?.endHour ?? 23;
   
   // Calculate minutes for the event and the day boundaries
+  const MINUTES_IN_HOUR = 60;
   const eventStartMinutes = startDate.getHours() * MINUTES_IN_HOUR + startDate.getMinutes();
   const eventEndMinutes = endDate.getHours() * MINUTES_IN_HOUR + endDate.getMinutes();
   const visibleStartMinutes = startHour * MINUTES_IN_HOUR;
@@ -276,7 +261,6 @@ export function getEventBlockStyle(
 }
 
 // ================ Month view helper functions ================ //
-
 
 export function calculateMonthEventPositions(singleDayEvents: IEvent[], selectedDate: Date) {
   const monthStart = startOfMonth(selectedDate);

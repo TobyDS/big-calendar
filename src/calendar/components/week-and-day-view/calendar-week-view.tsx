@@ -1,5 +1,5 @@
 import { startOfWeek, addDays, format, parseISO, isSameDay } from "date-fns";
-import { DAYS_IN_WEEK, CELL_HEIGHT_PX, getCalendarHeight, getDisplayHours } from "@/calendar/helpers";
+import { CELL_HEIGHT_PX, getCalendarHeight, getDisplayHours } from "@/calendar/helpers";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventBlock } from "@/calendar/components/week-and-day-view/event-block";
@@ -12,6 +12,8 @@ interface IProps {
   singleDayEvents: IEvent[];
   isLoading?: boolean;
 }
+
+const DAYS_IN_WEEK = 7;
 
 export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps) {
   const { selectedDate, weekStartsOn, openEventDialog, dayBoundaries } = useCalendar();

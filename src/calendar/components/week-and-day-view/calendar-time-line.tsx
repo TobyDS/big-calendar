@@ -1,11 +1,13 @@
 import { format, isSameDay, isSameWeek } from "date-fns";
 import { useEffect, useState } from "react";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-import { MINUTES_IN_HOUR, CELL_HEIGHT_PX } from "@/calendar/helpers";
+import { CELL_HEIGHT_PX } from "@/calendar/helpers";
 
 interface Props {
   view: 'week' | 'day';
 }
+
+const MINUTES_IN_HOUR = 60;
 
 export function CalendarTimeline({ view }: Props) {
   const [currentTime, setCurrentTime] = useState(new Date());
