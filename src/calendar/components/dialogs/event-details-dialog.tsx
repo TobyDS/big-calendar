@@ -4,12 +4,12 @@ import { format, parseISO } from "date-fns";
 import { Calendar, Clock, Edit, Text, Trash, User } from "lucide-react";
 import { useState } from "react";
 
-import { Dialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { EditEventForm } from "@/calendar/components/forms/edit-event-form";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { useDeleteEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
-import { EditEventForm } from "@/calendar/components/forms/edit-event-form";
 
 export function EventDetailsDialog() {
   const { eventDetailsDialog, closeEventDetailsDialog } = useCalendar();
@@ -22,14 +22,14 @@ export function EventDetailsDialog() {
         title: "Event deleted successfully",
       });
       closeEventDetailsDialog();
-    }
+    },
   });
 
   if (!event) return null;
 
   const startDate = parseISO(event.startDate);
   const endDate = parseISO(event.endDate);
-  
+
   const handleDelete = () => {
     if (typeof event.id === "string") {
       deleteEvent(event.id);
@@ -37,11 +37,11 @@ export function EventDetailsDialog() {
       deleteEvent(String(event.id));
     }
   };
-  
+
   const handleEdit = () => {
     setIsEditing(true);
   };
-  
+
   const cancelEdit = () => {
     setIsEditing(false);
   };
@@ -60,20 +60,20 @@ export function EventDetailsDialog() {
 
         <Dialog.Body>
           {isEditing ? (
-            <EditEventForm 
-              event={event} 
-              onCancelAction={cancelEdit} 
+            <EditEventForm
+              event={event}
+              onCancelAction={cancelEdit}
               onSuccessAction={() => {
                 closeEventDetailsDialog();
                 setIsEditing(false);
-              }} 
+              }}
             />
           ) : (
             <div className="space-y-4">
               <div className="mb-2">
                 <h3 className="text-lg font-medium">{event.title}</h3>
               </div>
-              
+
               {event.user && (
                 <div className="flex items-start gap-2">
                   <User className="mt-1 size-4 shrink-0 text-t-secondary" />
@@ -117,28 +117,17 @@ export function EventDetailsDialog() {
           {isEditing ? null : (
             <>
               <div className="flex flex-1 gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon-sm" 
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
+                <Button type="button" variant="outline" size="icon-sm" onClick={handleDelete} disabled={isDeleting}>
                   <Trash className="size-4" />
                   <span className="sr-only">Delete</span>
                 </Button>
-                
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon-sm" 
-                  onClick={handleEdit}
-                >
+
+                <Button type="button" variant="outline" size="icon-sm" onClick={handleEdit}>
                   <Edit className="size-4" />
                   <span className="sr-only">Edit</span>
                 </Button>
               </div>
-              
+
               <Dialog.Close asChild>
                 <Button type="button" variant="outline">
                   Close

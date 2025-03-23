@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 
-import { useCalendar } from "@/calendar/contexts/calendar-context";
 import { DayCell } from "@/calendar/components/month-view/day-cell";
-import { getCalendarCells, calculateMonthEventPositions } from "@/calendar/helpers";
-import { cn } from "@/utils/helpers/cn.helper";
+import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { calculateMonthEventPositions, getCalendarCells } from "@/calendar/helpers";
 import type { IEvent } from "@/calendar/interfaces";
+import { cn } from "@/utils/helpers/cn.helper";
 
 interface IProps {
   singleDayEvents: IEvent[];
@@ -32,13 +32,7 @@ export function CalendarMonthView({ singleDayEvents, isLoading = false }: IProps
       {/* Header row */}
       <div className="grid grid-cols-7">
         {weekDays.map((day, index) => (
-          <div 
-            key={day} 
-            className={cn(
-              "flex items-center justify-center py-2",
-              index > 0 && "border-l"
-            )}
-          >
+          <div key={day} className={cn("flex items-center justify-center py-2", index > 0 && "border-l")}>
             <span className="text-xs font-medium text-t-quaternary">{day}</span>
           </div>
         ))}
@@ -49,13 +43,7 @@ export function CalendarMonthView({ singleDayEvents, isLoading = false }: IProps
         {cells.map((cell, index) => {
           const isFirstColumn = index % 7 === 0;
           return (
-            <div 
-              key={cell.date.toISOString()} 
-              className={cn(
-                "relative border-t",
-                !isFirstColumn && "border-l"
-              )}
-            >
+            <div key={cell.date.toISOString()} className={cn("relative border-t", !isFirstColumn && "border-l")}>
               <DayCell cell={cell} events={allEvents} eventPositions={eventPositions} isLoading={isLoading} />
             </div>
           );

@@ -1,8 +1,8 @@
 import { useCalendar } from "@/calendar/contexts/calendar-context";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Select } from "@/components/ui/select";
 import { AvatarGroup } from "@/components/ui/avatar-group";
+import { Select } from "@/components/ui/select";
 
 export function UserSelect() {
   const { users, selectedUserId, setSelectedUserId } = useCalendar();

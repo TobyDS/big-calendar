@@ -6,14 +6,11 @@ interface SkeletonProps {
 
 export function Skeleton({ className }: SkeletonProps) {
   return (
-    <div 
-      className={cn(
-        "animate-pulse rounded-md", 
-        className
-      )} 
-      style={{ 
-        backgroundColor: 'rgba(156, 163, 175, 0.5)'
+    <div
+      className={cn("animate-pulse rounded-md", className)}
+      style={{
+        backgroundColor: "rgba(156, 163, 175, 0.5)",
       }}
     />
   );
-} 
+}

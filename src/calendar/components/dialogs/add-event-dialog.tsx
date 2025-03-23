@@ -1,28 +1,28 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import type { TimeValue } from "react-aria-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
+import type { TimeValue } from "react-aria-components";
+import { useForm } from "react-hook-form";
 
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Dialog } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 import { Textarea } from "@/components/ui/textarea";
 import { TimeInput } from "@/components/ui/time-input";
-import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 
-import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
+import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useCreateEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
 
 export function AddEventDialog() {
   const { eventDialog, closeEventDialog, selectedUserId, users } = useCalendar();
   const { toast } = useToast();
-  
+
   const { mutate: createEvent, isPending } = useCreateEvent({
     onSuccess: () => {
       toast({
@@ -43,27 +43,21 @@ export function AddEventDialog() {
       endDate: undefined,
       endTime: undefined,
       variant: undefined,
-      userId: selectedUserId !== "all" && selectedUserId !== null 
-        ? selectedUserId 
-        : undefined,
+      userId: selectedUserId !== "all" && selectedUserId !== null ? selectedUserId : undefined,
     },
   });
 
   useEffect(() => {
     if (eventDialog.isOpen) {
-      const defaultUserId = selectedUserId !== "all" && selectedUserId !== null 
-        ? selectedUserId 
-        : undefined;
-        
+      const defaultUserId = selectedUserId !== "all" && selectedUserId !== null ? selectedUserId : undefined;
+
       form.reset({
         title: "",
         description: "",
         startDate: eventDialog.startDate,
         startTime: eventDialog.startTime,
         endDate: eventDialog.startDate, // Default end date to same as start date
-        endTime: eventDialog.startTime 
-          ? { hour: Math.min(eventDialog.startTime.hour + 1, 23), minute: eventDialog.startTime.minute }
-          : undefined,
+        endTime: eventDialog.startTime ? { hour: Math.min(eventDialog.startTime.hour + 1, 23), minute: eventDialog.startTime.minute } : undefined,
         variant: "blue",
         userId: defaultUserId,
       });
@@ -81,7 +75,9 @@ export function AddEventDialog() {
 
         <Dialog.Header>
           <Dialog.Title>Add New Event</Dialog.Title>
-          <Dialog.Description id="event-form-description" className="sr-only">Fill in the details to create a new calendar event.</Dialog.Description>
+          <Dialog.Description id="event-form-description" className="sr-only">
+            Fill in the details to create a new calendar event.
+          </Dialog.Description>
         </Dialog.Header>
 
         <Dialog.Body>
@@ -181,7 +177,7 @@ export function AddEventDialog() {
                   )}
                 />
               </div>
-              
+
               {users && users.length > 0 && (
                 <Form.Field
                   control={form.control}
@@ -190,10 +186,7 @@ export function AddEventDialog() {
                     <Form.Item>
                       <Form.Label>Assign to User</Form.Label>
                       <Form.Control>
-                        <Select.Root 
-                          value={field.value || "none"} 
-                          onValueChange={field.onChange}
-                        >
+                        <Select.Root value={field.value || "none"} onValueChange={field.onChange}>
                           <Select.Trigger data-invalid={fieldState.invalid}>
                             <Select.Value placeholder="Select a user (optional)" />
                           </Select.Trigger>
@@ -202,7 +195,7 @@ export function AddEventDialog() {
                             <Select.Item value="none">
                               <span>None</span>
                             </Select.Item>
-                            {users.map((user) => (
+                            {users.map(user => (
                               <Select.Item key={user.id} value={user.id}>
                                 {user.name}
                               </Select.Item>
@@ -223,10 +216,7 @@ export function AddEventDialog() {
                   <Form.Item>
                     <Form.Label required>Variant</Form.Label>
                     <Form.Control>
-                      <Select.Root 
-                        value={field.value || "blue"} 
-                        onValueChange={field.onChange}
-                      >
+                      <Select.Root value={field.value || "blue"} onValueChange={field.onChange}>
                         <Select.Trigger data-invalid={fieldState.invalid}>
                           <Select.Value placeholder="Select an option" />
                         </Select.Trigger>

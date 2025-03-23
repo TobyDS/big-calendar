@@ -54,9 +54,9 @@ export function navigateDate(date: Date, view: TCalendarView, direction: "previo
 }
 
 export function getEventsCount(
-  events: IEvent[], 
-  date: Date, 
-  view: TCalendarView, 
+  events: IEvent[],
+  date: Date,
+  view: TCalendarView,
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1,
   dayBoundaries?: { startHour: number; endHour: number }
 ): number {
@@ -69,22 +69,22 @@ export function getEventsCount(
   return events.filter(event => {
     const eventStart = new Date(event.startDate);
     const eventEnd = new Date(event.endDate);
-    
+
     // First check if event is in the right time period (day/week/month)
     const isInPeriod = compareFns[view](eventStart, date);
-    
+
     // If no day boundaries or not in day/week view, just return period check
-    if (!dayBoundaries || view === 'month') {
+    if (!dayBoundaries || view === "month") {
       return isInPeriod;
     }
 
     // For day/week views, check if event overlaps with visible hours
     const visibleStart = new Date(eventStart);
     visibleStart.setHours(dayBoundaries.startHour, 0, 0, 0);
-    
+
     const visibleEnd = new Date(eventStart);
     visibleEnd.setHours(dayBoundaries.endHour, 0, 0, 0);
 
     return isInPeriod && eventStart < visibleEnd && eventEnd > visibleStart;
   }).length;
-} 
+}

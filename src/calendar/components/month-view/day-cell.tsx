@@ -1,13 +1,14 @@
-import { useMemo } from "react";
 import { isToday, startOfDay } from "date-fns";
+import { useMemo } from "react";
 
-import { cn } from "@/utils/helpers/cn.helper";
 import { EventBullet } from "@/calendar/components/month-view/event-bullet";
 import { MonthEventBadge } from "@/calendar/components/month-view/month-event-badge";
 import { MonthEventSkeleton } from "@/calendar/components/skeleton";
 import { getMonthCellEvents } from "@/calendar/helpers";
+import { MAX_EVENT_STACK } from "@/calendar/helpers/constants";
 import { SKELETON_MONTH_EVENTS } from "@/calendar/helpers/skeleton-events";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
+import { cn } from "@/utils/helpers/cn.helper";
 
 interface IProps {
   cell: ICalendarCell;
@@ -15,8 +16,6 @@ interface IProps {
   eventPositions: Record<string, number>;
   isLoading?: boolean;
 }
-
-const MAX_VISIBLE_EVENTS = 3;
 
 export function DayCell({ cell, events, eventPositions, isLoading = false }: IProps) {
   const { day, currentMonth, date } = cell;
@@ -51,32 +50,30 @@ export function DayCell({ cell, events, eventPositions, isLoading = false }: IPr
 
           return (
             <div key={eventKey} className="lg:flex-1">
-              {isLoading ? (
-                // Always show skeletons from top to bottom
-                position < skeletonCount && (
-                  <>
-                    <EventBullet className="opacity-50 lg:hidden" color="blue" />
-                    <MonthEventSkeleton className="hidden lg:flex" />
-                  </>
-                )
-              ) : (
-                // Show actual event when loaded
-                event && (
-                  <>
-                    <EventBullet className="lg:hidden" color={event.color} />
-                    <MonthEventBadge className="hidden lg:flex" event={event} cellDate={startOfDay(date)} />
-                  </>
-                )
-              )}
+              {isLoading
+                ? // Always show skeletons from top to bottom
+                  position < skeletonCount && (
+                    <>
+                      <EventBullet className="opacity-50 lg:hidden" color="blue" />
+                      <MonthEventSkeleton className="hidden lg:flex" />
+                    </>
+                  )
+                : // Show actual event when loaded
+                  event && (
+                    <>
+                      <EventBullet className="lg:hidden" color={event.color} />
+                      <MonthEventBadge className="hidden lg:flex" event={event} cellDate={startOfDay(date)} />
+                    </>
+                  )}
             </div>
           );
         })}
       </div>
 
-      {!isLoading && cellEvents.length > MAX_VISIBLE_EVENTS && (
+      {!isLoading && cellEvents.length > MAX_EVENT_STACK && (
         <p className={cn("h-4.5 px-1.5 text-xs font-semibold text-t-quaternary", !currentMonth && "opacity-50")}>
-          <span className="sm:hidden">+{cellEvents.length - MAX_VISIBLE_EVENTS}</span>
-          <span className="hidden sm:inline"> {cellEvents.length - MAX_VISIBLE_EVENTS} more...</span>
+          <span className="sm:hidden">+{cellEvents.length - MAX_EVENT_STACK}</span>
+          <span className="hidden sm:inline"> {cellEvents.length - MAX_EVENT_STACK} more...</span>
         </p>
       )}
     </div>

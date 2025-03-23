@@ -52,13 +52,13 @@ interface CalendarProviderProps<U extends IBaseUser = IDefaultUser> {
   };
 }
 
-export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser>({ 
-  children, 
-  users, 
+export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends IBaseUser = IDefaultUser>({
+  children,
+  users,
   initialView = "month",
   weekStartsOn = "Sunday",
   badgeVariant = "colored",
-  dayBoundaries
+  dayBoundaries,
 }: CalendarProviderProps<U>) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedUserId, setSelectedUserId] = useState<U["id"] | "all" | null>(users ? "all" : null);
@@ -68,13 +68,13 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
     startDate?: Date;
     startTime?: { hour: number; minute: number };
   }>({
-    isOpen: false
+    isOpen: false,
   });
   const [eventDetailsDialog, setEventDetailsDialog] = useState<{
     isOpen: boolean;
     event?: T;
   }>({
-    isOpen: false
+    isOpen: false,
   });
 
   // We're using empty array initially - actual events are now loaded in the ClientContainer
@@ -90,40 +90,40 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
     setEventDialog({
       isOpen: true,
       startDate,
-      startTime
+      startTime,
     });
   };
 
   const closeEventDialog = () => {
     setEventDialog({
-      isOpen: false
+      isOpen: false,
     });
   };
 
   const openEventDetailsDialog = (event: T) => {
     setEventDetailsDialog({
       isOpen: true,
-      event
+      event,
     });
   };
 
   const closeEventDetailsDialog = () => {
     setEventDetailsDialog({
-      isOpen: false
+      isOpen: false,
     });
   };
 
   return (
     <CalendarContext.Provider
-      value={{ 
-        selectedDate, 
-        setSelectedDate: handleSelectDate, 
-        selectedUserId, 
-        setSelectedUserId, 
+      value={{
+        selectedDate,
+        setSelectedDate: handleSelectDate,
+        selectedUserId,
+        setSelectedUserId,
         badgeVariant,
         weekStartsOn: WeekStartDay[weekStartsOn],
         dayBoundaries,
-        users, 
+        users,
         events,
         isLoadingEvents,
         currentView,
@@ -134,7 +134,7 @@ export function CalendarProvider<T extends IBaseEvent = IDefaultEvent, U extends
         closeEventDialog,
         eventDetailsDialog,
         openEventDetailsDialog,
-        closeEventDetailsDialog
+        closeEventDetailsDialog,
       }}
     >
       {children}

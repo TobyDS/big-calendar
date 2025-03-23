@@ -1,31 +1,25 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import type { TimeValue } from "react-aria-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getHours, getMinutes, parseISO } from "date-fns";
+import type { TimeValue } from "react-aria-components";
+import { useForm } from "react-hook-form";
 
+import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 import { Textarea } from "@/components/ui/textarea";
 import { TimeInput } from "@/components/ui/time-input";
-import { SingleDayPickerInput } from "@/components/ui/single-day-picker-input";
 
+import { useCalendar } from "@/calendar/contexts/calendar-context";
+import type { IEvent } from "@/calendar/interfaces";
 import { eventSchema, type TEventFormData } from "@/calendar/schemas";
 import { useUpdateEvent } from "@/hooks/use-calendar-mutations";
 import { useToast } from "@/hooks/use-toast";
-import type { IEvent } from "@/calendar/interfaces";
-import { useCalendar } from "@/calendar/contexts/calendar-context";
 
-interface EditEventFormProps {
-  event: IEvent;
-  onCancelAction: () => void;
-  onSuccessAction: () => void;
-}
-
-export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEventFormProps) {
+export function EditEventForm({ event, onCancelAction, onSuccessAction }: { event: IEvent; onCancelAction: () => void; onSuccessAction: () => void }) {
   const { toast } = useToast();
   const { users } = useCalendar();
   const { mutate: updateEvent, isPending } = useUpdateEvent({
@@ -43,15 +37,19 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
       title: event.title || "",
       description: event.description || "",
       startDate: event.startDate ? parseISO(event.startDate) : new Date(),
-      startTime: event.startDate ? {
-        hour: getHours(parseISO(event.startDate)),
-        minute: getMinutes(parseISO(event.startDate))
-      } : { hour: 12, minute: 0 },
+      startTime: event.startDate
+        ? {
+            hour: getHours(parseISO(event.startDate)),
+            minute: getMinutes(parseISO(event.startDate)),
+          }
+        : { hour: 12, minute: 0 },
       endDate: event.endDate ? parseISO(event.endDate) : new Date(),
-      endTime: event.endDate ? {
-        hour: getHours(parseISO(event.endDate)),
-        minute: getMinutes(parseISO(event.endDate))
-      } : { hour: 13, minute: 0 },
+      endTime: event.endDate
+        ? {
+            hour: getHours(parseISO(event.endDate)),
+            minute: getMinutes(parseISO(event.endDate)),
+          }
+        : { hour: 13, minute: 0 },
       variant: event.color || "blue",
       userId: event.user?.id || "none",
     },
@@ -62,9 +60,9 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
   // No useEffect reset needed as initial values are already set
 
   const onSubmit = (values: TEventFormData & { userId?: string }) => {
-    updateEvent({ 
-      ...values, 
-      id: typeof event.id === 'string' ? event.id : String(event.id),
+    updateEvent({
+      ...values,
+      id: typeof event.id === "string" ? event.id : String(event.id),
     });
   };
 
@@ -165,36 +163,29 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
             )}
           />
         </div>
-        
+
         {users && users.length > 0 && (
           <Form.Field
             control={form.control}
             name="userId"
             render={({ field, fieldState }) => {
               // Find the user name to display
-              const displayName = field.value === "none" 
-                ? "None" 
-                : users.find(u => u.id === field.value)?.name || "None";
-                
+              const displayName = field.value === "none" ? "None" : users.find(u => u.id === field.value)?.name || "None";
+
               return (
                 <Form.Item>
                   <Form.Label>Assign to User</Form.Label>
                   <Form.Control>
-                    <Select.Root 
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select.Root value={field.value} onValueChange={field.onChange}>
                       <Select.Trigger className="w-full" data-invalid={fieldState.invalid}>
-                        <Select.Value>
-                          {displayName}
-                        </Select.Value>
+                        <Select.Value>{displayName}</Select.Value>
                       </Select.Trigger>
 
                       <Select.Content>
                         <Select.Item value="none">
                           <span>None</span>
                         </Select.Item>
-                        {users.map((user) => (
+                        {users.map(user => (
                           <Select.Item key={user.id} value={user.id}>
                             {user.name}
                           </Select.Item>
@@ -214,22 +205,15 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
           name="variant"
           render={({ field, fieldState }) => {
             // Format variant name for display
-            const displayName = field.value 
-              ? field.value.charAt(0).toUpperCase() + field.value.slice(1) 
-              : "Select a variant";
-              
+            const displayName = field.value ? field.value.charAt(0).toUpperCase() + field.value.slice(1) : "Select a variant";
+
             return (
               <Form.Item>
                 <Form.Label required>Variant</Form.Label>
                 <Form.Control>
-                  <Select.Root 
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select.Root value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger className="w-full" data-invalid={fieldState.invalid}>
-                      <Select.Value>
-                        {displayName}
-                      </Select.Value>
+                      <Select.Value>{displayName}</Select.Value>
                     </Select.Trigger>
 
                     <Select.Content>
@@ -305,7 +289,7 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
             </Form.Item>
           )}
         />
-        
+
         <div className="mt-4 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancelAction}>
             Cancel
@@ -317,4 +301,4 @@ export function EditEventForm({ event, onCancelAction, onSuccessAction }: EditEv
       </form>
     </Form.Root>
   );
-} 
+}

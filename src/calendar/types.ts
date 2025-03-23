@@ -12,4 +12,4 @@ export const WeekStartDay = {
 } as const;
 
 export type WeekStartDay = keyof typeof WeekStartDay;
-export type WeekStartNumber = typeof WeekStartDay[WeekStartDay];
+export type WeekStartNumber = (typeof WeekStartDay)[WeekStartDay];

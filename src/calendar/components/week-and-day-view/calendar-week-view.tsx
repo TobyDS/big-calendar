@@ -8,12 +8,7 @@ import { CELL_HEIGHT_PX, DAYS_IN_WEEK, getCalendarHeight, getDisplayHours, getEv
 import type { IEvent } from "@/calendar/interfaces";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface IProps {
-  singleDayEvents: IEvent[];
-  isLoading?: boolean;
-}
-
-export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps) {
+export function CalendarWeekView({ singleDayEvents, isLoading = false }: { singleDayEvents: IEvent[]; isLoading?: boolean }) {
   const { selectedDate, weekStartsOn, openEventDialog, dayBoundaries } = useCalendar();
 
   const weekStart = startOfWeek(selectedDate, { weekStartsOn });
@@ -30,7 +25,6 @@ export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps)
 
       <div className="hidden flex-col sm:flex">
         <div>
-
           {/* Week header */}
           <div className="relative z-20 flex border-b">
             <div className="w-18"></div>
@@ -69,33 +63,28 @@ export function CalendarWeekView({ singleDayEvents, isLoading = false }: IProps)
                       {hours.map((hour, index) => (
                         <div key={hour} className="relative" style={{ height: `${CELL_HEIGHT_PX}px` }}>
                           {index !== 0 && <div className="pointer-events-none absolute inset-x-0 top-0 border-b"></div>}
-                          <div 
+                          <div
                             className="absolute inset-x-0 top-0 h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
                             onClick={() => openEventDialog(day, { hour, minute: 0 })}
                           />
 
                           <div className="pointer-events-none absolute inset-x-0 top-1/2 border-b border-dashed border-b-tertiary"></div>
 
-                          <div 
+                          <div
                             className="absolute inset-x-0 top-[48px] h-[48px] cursor-pointer transition-colors hover:bg-bg-primary-hover"
                             onClick={() => openEventDialog(day, { hour, minute: 30 })}
                           />
                         </div>
                       ))}
 
-                      <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: 'hidden' }}>
+                      <div className="pointer-events-none absolute inset-0" style={{ height: `${calendarHeight}px`, overflow: "hidden" }}>
                         {isLoading ? (
                           <WeekSkeletonEvents dayIndex={dayIndex} dayBoundaries={dayBoundaries} />
                         ) : (
                           groupedEvents.map(group =>
                             group.events.map(({ event, column }) => {
-                              const style = getEventBlockStyle(
-                                event,
-                                column,
-                                dayBoundaries,
-                                group.totalColumns
-                              );
-                              
+                              const style = getEventBlockStyle(event, column, dayBoundaries, group.totalColumns);
+
                               return (
                                 <div key={event.id} className="pointer-events-auto absolute p-1" style={style}>
                                   <EventBlock event={event} />

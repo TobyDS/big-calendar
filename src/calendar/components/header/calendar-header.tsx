@@ -1,22 +1,16 @@
-import Link from "next/link";
 import { Columns, Grid3X3, List, Plus } from "lucide-react";
+import Link from "next/link";
 
 import { Button, ButtonGroup } from "@/components/ui/button";
 
-import { UserSelect } from "@/calendar/components/header/user-select";
+import { DateNavigator } from "@/calendar/components/header/date-navigator";
 import { TodayButton } from "@/calendar/components/header/today-button";
-import { DateNavigator } from "@/calendar/components/header/date-navigator";;
+import { UserSelect } from "@/calendar/components/header/user-select";
 import { useCalendar } from "@/calendar/contexts/calendar-context";
-
 import type { IEvent } from "@/calendar/interfaces";
 import type { TCalendarView } from "@/calendar/types";
 
-interface IProps {
-  view: TCalendarView;
-  events: IEvent[];
-}
-
-export function CalendarHeader({ view, events }: IProps) {
+export function CalendarHeader({ view, events }: { view: TCalendarView; events: IEvent[] }) {
   const { hasUsers, openEventDialog } = useCalendar();
 
   return (

@@ -1,14 +1,4 @@
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  isSameDay,
-  isSameMonth,
-  parseISO,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { eachDayOfInterval, endOfMonth, endOfWeek, isSameDay, isSameMonth, parseISO, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 
 import { MAX_EVENT_STACK } from "@/calendar/helpers/constants";
 import type { ICalendarCell, IEvent } from "@/calendar/interfaces";
@@ -26,9 +16,7 @@ export function calculateMonthEventPositions(singleDayEvents: IEvent[], selected
     occupiedPositions[day.toISOString()] = Array(MAX_EVENT_STACK).fill(false);
   });
 
-  const sortedEvents = [
-    ...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()),
-  ];
+  const sortedEvents = [...singleDayEvents.sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime())];
 
   sortedEvents.forEach(event => {
     const eventStart = parseISO(event.startDate);
@@ -88,4 +76,4 @@ export function getCalendarCells(date: Date, weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5
     currentMonth: isSameMonth(day, date),
     date: day,
   }));
-} 
+}
